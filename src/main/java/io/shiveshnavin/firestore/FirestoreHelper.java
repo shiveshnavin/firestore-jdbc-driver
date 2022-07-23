@@ -11,6 +11,7 @@ import com.google.gson.JsonParser;
 import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -22,9 +23,19 @@ public class FirestoreHelper {
     private FirebaseDatabase defaultDatabase;
     private Map<String, FirebaseApp> firebaseApps = new HashMap<>();
 
-    public FirestoreHelper() {
+    public FirestoreHelper(InputStream resourceAsStream) {
         try {
-            InputStream resourceAsStream = FirestoreHelper.class.getClassLoader().getResourceAsStream("keys/test-a0930.json");
+            String serviceAccountJson = StringUtils.newStringUtf8(resourceAsStream.readAllBytes());
+            init(serviceAccountJson);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new FirestoreJDBCException("Unable to find service account file.");
+        }
+    }
+
+    public FirestoreHelper(String path) {
+        try {
+            InputStream resourceAsStream = new FileInputStream(path);
             String serviceAccountJson = StringUtils.newStringUtf8(resourceAsStream.readAllBytes());
             init(serviceAccountJson);
         } catch (IOException e) {

@@ -11,7 +11,7 @@ class FirestoreHelperTest {
 
     @BeforeEach
     void setUp() {
-        firestoreHelper = new FirestoreHelper();
+        firestoreHelper = new FirestoreHelper(FirestoreHelper.class.getClassLoader().getResourceAsStream("keys/test-a0930.json"));
     }
 
     @Test
