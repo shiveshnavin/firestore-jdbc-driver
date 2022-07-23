@@ -9,13 +9,16 @@ public class FirestoreJDBCDriver implements Driver {
 
 
     @Override
-    public Connection connect(String s, Properties properties) throws SQLException {
-        return null;
+    public Connection connect(String serviceAccountFilePath, Properties properties) throws SQLException {
+
+        FirestoreJDBCConnection connection = new FirestoreJDBCConnection(serviceAccountFilePath);
+
+        return connection;
     }
 
     @Override
     public boolean acceptsURL(String s) throws SQLException {
-        return false;
+        return true;
     }
 
     @Override

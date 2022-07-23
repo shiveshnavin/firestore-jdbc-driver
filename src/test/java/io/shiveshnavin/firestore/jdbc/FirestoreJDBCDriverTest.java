@@ -1,7 +1,12 @@
 package io.shiveshnavin.firestore.jdbc;
 
+import io.shiveshnavin.firestore.FirestoreHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -9,9 +14,14 @@ class FirestoreJDBCDriverTest {
 
     @BeforeEach
     void setUp() {
+
     }
 
     @Test
-    void connect() {
+    void connect() throws Exception {
+        DriverManager.registerDriver(new FirestoreJDBCDriver());
+        String serviceAccountJsonPath = FirestoreHelper.class.getClassLoader().getResource("keys/test-a0930.json").getFile();
+        Connection con= DriverManager.getConnection(serviceAccountJsonPath);
+        assertNotNull(con);
     }
 }
