@@ -1,5 +1,6 @@
 package io.shiveshnavin.firestore.jdbc;
 
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.database.FirebaseDatabase;
 import io.shiveshnavin.firestore.FirestoreHelper;
 
@@ -11,7 +12,7 @@ import java.util.concurrent.Executor;
 public class FirestoreJDBCConnection implements Connection {
 
     private FirestoreHelper connManager;
-    private FirebaseDatabase firebaseDatabase;
+    private Firestore firebaseDatabase;
 
     public FirestoreJDBCConnection(String serviceAccountFilePath) {
         connManager = new FirestoreHelper(serviceAccountFilePath);

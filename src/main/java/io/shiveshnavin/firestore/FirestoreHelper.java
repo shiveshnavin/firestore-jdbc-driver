@@ -2,8 +2,10 @@ package io.shiveshnavin.firestore;
 
 import com.google.api.client.util.StringUtils;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -20,7 +22,7 @@ import java.util.Map;
 
 public class FirestoreHelper {
 
-    private FirebaseDatabase defaultDatabase;
+    private Firestore defaultDatabase;
     private Map<String, FirebaseApp> firebaseApps = new HashMap<>();
 
     public FirestoreHelper(InputStream resourceAsStream) {
@@ -64,7 +66,7 @@ public class FirestoreHelper {
 
             FirebaseApp firebaseApp = FirebaseApp.initializeApp(options, projectId);
 
-            FirebaseDatabase db = FirebaseDatabase.getInstance(firebaseApp);
+            Firestore db = FirestoreClient.getFirestore(firebaseApp);
             if (defaultDatabase == null)
                 defaultDatabase = db;
             firebaseApps.put(projectId, firebaseApp);
@@ -76,7 +78,7 @@ public class FirestoreHelper {
         }
     }
 
-    public FirebaseDatabase getDefaultDatabase() {
+    public Firestore getDefaultDatabase() {
         return defaultDatabase;
     }
 

@@ -1,19 +1,89 @@
 package io.shiveshnavin.firestore.jdbc;
 
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QuerySnapshot;
+import io.shiveshnavin.firestore.FJLogger;
+import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.delete.Delete;
+import net.sf.jsqlparser.statement.drop.Drop;
+import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.update.Update;
+import net.sf.jsqlparser.util.TablesNamesFinder;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.util.concurrent.ExecutionException;
 
-public class FirestoreJDBCStatement implements Statement {
 
-    private FirebaseDatabase firebaseDatabase;
-    public FirestoreJDBCStatement(FirebaseDatabase firebaseDatabase) {
-        this.firebaseDatabase = firebaseDatabase;
+public class FirestoreJDBCStatement implements java.sql.Statement {
+
+    private Firestore db;
+    private Statement parsedQuery;
+    private QueryType queryType;
+    private String tableName;
+    private FirestoreJDBCResultSet firestoreJDBCResultSet;
+
+    private enum QueryType {
+        CREATE, INSERT, SELECT, UPDATE, DELETE, DROP
     }
 
+    public FirestoreJDBCStatement(Firestore db) {
+        this.db = db;
+    }
+
+
+    private String parseQuery(String sql) throws FirestoreJDBCException {
+        try {
+
+            parsedQuery = CCJSqlParserUtil.parse(sql);
+            TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+            String tableName = tablesNamesFinder.getTableList(parsedQuery).stream().findFirst().get();
+
+            if (parsedQuery instanceof CreateTable) {
+                queryType = QueryType.CREATE;
+            } else if (parsedQuery instanceof Insert) {
+                queryType = QueryType.INSERT;
+            } else if (parsedQuery instanceof Select) {
+                queryType = QueryType.SELECT;
+            } else if (parsedQuery instanceof Update) {
+                queryType = QueryType.UPDATE;
+            } else if (parsedQuery instanceof Delete) {
+                queryType = QueryType.DELETE;
+            } else if (parsedQuery instanceof Drop) {
+                queryType = QueryType.DROP;
+            }
+
+            FJLogger.debug("QueryInfo: " + queryType.name() + " from table : " + tableName);
+            this.tableName = tableName;
+            return tableName;
+        } catch (JSQLParserException e) {
+            throw new FirestoreJDBCException(e);
+        }
+    }
+
+
     @Override
-    public ResultSet executeQuery(String s) throws SQLException {
-        return null;
+    public ResultSet executeQuery(String sql) {
+        parseQuery(sql);
+        CollectionReference query = db.collection(tableName);
+        ApiFuture<QuerySnapshot> queryFuture = query.get();
+        try {
+            QuerySnapshot querySnapshot = queryFuture.get();
+            firestoreJDBCResultSet = new FirestoreJDBCResultSet();
+            firestoreJDBCResultSet.setQueryResult(querySnapshot);
+            return firestoreJDBCResultSet;
+        } catch (Exception e) {
+            throw new FirestoreJDBCException(e);
+        }
     }
 
     @Override
@@ -66,23 +136,8 @@ public class FirestoreJDBCStatement implements Statement {
 
     @Override
     public ResultSet getResultSet() throws SQLException {
-        return null;
+        return firestoreJDBCResultSet;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     @Override

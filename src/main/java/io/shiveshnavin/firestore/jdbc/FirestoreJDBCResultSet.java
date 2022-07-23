@@ -1,29 +1,127 @@
 package io.shiveshnavin.firestore.jdbc;
 
+import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.google.cloud.firestore.QuerySnapshot;
+import io.shiveshnavin.firestore.FJLogger;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 public class FirestoreJDBCResultSet implements ResultSet {
 
+    private QuerySnapshot queryResult;
+    private int index = -1;
+    private int size = 0;
+    private List<QueryDocumentSnapshot> queryDocumentSnapshots;
+
+    public void setQueryResult(QuerySnapshot queryResult) {
+        this.queryResult = queryResult;
+        queryDocumentSnapshots = queryResult.getDocuments();
+        size = queryDocumentSnapshots.size();
+        FJLogger.debug("Retrieved " + size + " rows in result set");
+    }
+
+    public QuerySnapshot getQueryResult() {
+        return queryResult;
+    }
+
     @Override
     public boolean next() throws SQLException {
+        index++;
+        return getFetchSize() > index;
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> aClass) throws SQLException {
+        return queryDocumentSnapshots.get(index).toObject(aClass);
+    }
+
+    @Override
+    public int getFetchSize() throws SQLException {
+        return size;
+    }
+
+    @Override
+    public <T> T getObject(int i, Class<T> aClass) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public <T> T getObject(String s, Class<T> aClass) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public String getString(String s) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public boolean getBoolean(String s) throws SQLException {
         return false;
     }
 
     @Override
-    public void close() throws SQLException {
-
+    public byte getByte(String s) throws SQLException {
+        return 0;
     }
 
     @Override
-    public boolean wasNull() throws SQLException {
-        return false;
+    public short getShort(String s) throws SQLException {
+        return 0;
     }
+
+    @Override
+    public int getInt(String s) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public long getLong(String s) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public float getFloat(String s) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public double getDouble(String s) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public BigDecimal getBigDecimal(String s, int i) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public byte[] getBytes(String s) throws SQLException {
+        return new byte[0];
+    }
+
+    @Override
+    public Date getDate(String s) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Time getTime(String s) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Timestamp getTimestamp(String s) throws SQLException {
+        return null;
+    }
+
 
     @Override
     public String getString(int i) throws SQLException {
@@ -90,6 +188,17 @@ public class FirestoreJDBCResultSet implements ResultSet {
         return null;
     }
 
+
+    @Override
+    public void close() throws SQLException {
+
+    }
+
+    @Override
+    public boolean wasNull() throws SQLException {
+        return false;
+    }
+
     @Override
     public InputStream getAsciiStream(int i) throws SQLException {
         return null;
@@ -102,71 +211,6 @@ public class FirestoreJDBCResultSet implements ResultSet {
 
     @Override
     public InputStream getBinaryStream(int i) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public String getString(String s) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public boolean getBoolean(String s) throws SQLException {
-        return false;
-    }
-
-    @Override
-    public byte getByte(String s) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public short getShort(String s) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public int getInt(String s) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public long getLong(String s) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public float getFloat(String s) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public double getDouble(String s) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public BigDecimal getBigDecimal(String s, int i) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public byte[] getBytes(String s) throws SQLException {
-        return new byte[0];
-    }
-
-    @Override
-    public Date getDate(String s) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Time getTime(String s) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Timestamp getTimestamp(String s) throws SQLException {
         return null;
     }
 
@@ -315,10 +359,6 @@ public class FirestoreJDBCResultSet implements ResultSet {
 
     }
 
-    @Override
-    public int getFetchSize() throws SQLException {
-        return 0;
-    }
 
     @Override
     public int getType() throws SQLException {
@@ -945,23 +985,10 @@ public class FirestoreJDBCResultSet implements ResultSet {
 
     }
 
-    @Override
-    public <T> T getObject(int i, Class<T> aClass) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public <T> T getObject(String s, Class<T> aClass) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public <T> T unwrap(Class<T> aClass) throws SQLException {
-        return null;
-    }
 
     @Override
     public boolean isWrapperFor(Class<?> aClass) throws SQLException {
         return false;
     }
+
 }
