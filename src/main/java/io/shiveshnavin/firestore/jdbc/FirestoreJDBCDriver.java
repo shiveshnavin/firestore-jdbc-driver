@@ -9,10 +9,8 @@ public class FirestoreJDBCDriver implements Driver {
 
 
     @Override
-    public Connection connect(String serviceAccountFilePath, Properties properties) throws SQLException {
-
+    public Connection connect(String serviceAccountFilePath, Properties properties) {
         FirestoreJDBCConnection connection = new FirestoreJDBCConnection(serviceAccountFilePath);
-
         return connection;
     }
 
@@ -38,7 +36,7 @@ public class FirestoreJDBCDriver implements Driver {
 
     @Override
     public boolean jdbcCompliant() {
-        return false;
+        return true;
     }
 
     @Override

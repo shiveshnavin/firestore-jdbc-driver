@@ -48,7 +48,8 @@ public class FirestoreHelper {
 
     public FirebaseApp init(String serviceAccountJson) throws FirestoreJDBCException {
 
-        JsonObject serviceAccount = JsonParser.parseString(serviceAccountJson).getAsJsonObject();
+        JsonParser jsonParser = new JsonParser();
+        JsonObject serviceAccount = jsonParser.parse(serviceAccountJson).getAsJsonObject();
         String projectId = serviceAccount.get("project_id").getAsString();
 
         if (FirebaseApp.getApps().stream().anyMatch(app-> app.getName().equals(projectId))) {
