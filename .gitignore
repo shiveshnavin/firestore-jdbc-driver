@@ -159,3 +159,4 @@ $RECYCLE.BIN/
 *.lnk
 .idea/
 
+src/main/resources/keys/
