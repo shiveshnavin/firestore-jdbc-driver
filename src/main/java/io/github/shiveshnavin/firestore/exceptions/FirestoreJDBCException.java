@@ -1,4 +1,4 @@
-package io.shiveshnavin.firestore.exceptions;
+package io.github.shiveshnavin.firestore.exceptions;
 
 public class FirestoreJDBCException extends RuntimeException {
 

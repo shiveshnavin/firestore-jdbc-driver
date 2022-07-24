@@ -1,4 +1,4 @@
-package io.shiveshnavin.firestore.jdbc.metadata;
+package io.github.shiveshnavin.firestore.jdbc.metadata;
 
 
 public class FirestoreColDefinition {

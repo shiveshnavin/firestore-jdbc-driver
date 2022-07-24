@@ -1,4 +1,4 @@
-package io.shiveshnavin.firestore;
+package io.github.shiveshnavin.firestore;
 
 import com.google.api.client.util.StringUtils;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -9,7 +9,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
+import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;

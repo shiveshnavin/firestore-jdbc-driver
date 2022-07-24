@@ -1,13 +1,13 @@
-package io.shiveshnavin.firestore.jdbc;
+package io.github.shiveshnavin.firestore.jdbc;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
-import io.shiveshnavin.firestore.FJLogger;
-import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
-import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
-import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColType;
+import io.github.shiveshnavin.firestore.FJLogger;
+import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
+import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
+import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColType;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;

@@ -1,4 +1,4 @@
-package io.shiveshnavin.firestore;
+package io.github.shiveshnavin.firestore;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

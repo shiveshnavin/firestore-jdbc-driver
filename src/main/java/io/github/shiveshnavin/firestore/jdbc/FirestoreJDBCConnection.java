@@ -1,7 +1,7 @@
-package io.shiveshnavin.firestore.jdbc;
+package io.github.shiveshnavin.firestore.jdbc;
 
 import com.google.cloud.firestore.Firestore;
-import io.shiveshnavin.firestore.FirestoreHelper;
+import io.github.shiveshnavin.firestore.FirestoreHelper;
 
 import java.sql.*;
 import java.util.Map;

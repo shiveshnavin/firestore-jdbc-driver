@@ -1,7 +1,7 @@
 //package io.shiveshnavin.firestore.jdbc;
 //
-//import io.shiveshnavin.firestore.FJLogger;
-//import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
+//import FJLogger;
+//import FirestoreJDBCException;
 //import org.junit.jupiter.api.Assertions;
 //import org.junit.jupiter.api.BeforeAll;
 //import org.junit.jupiter.api.Disabled;

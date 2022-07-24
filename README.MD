@@ -18,9 +18,10 @@ TODO : download from maven central
 1. Download the firebase service account file for your project
    https://firebase.google.com/docs/admin/setup
 2. Add these to `application.properties`
+
 ```properties
 spring.datasource.url=path/to/your/service-account.json
-spring.datasource.driver-class-name=io.shiveshnavin.firestore.jdbc.FirestoreJDBCDriver
+spring.datasource.driver-class-name=FirestoreJDBCDriver
 ```
 3. Create a `LocalSessionFactoryBean` bean in your `@Configuration` class and replace `com.example.domain.model` with your domain model package
 ```java

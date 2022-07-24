@@ -1,4 +1,4 @@
-package io.shiveshnavin.firestore.jdbc;
+package io.github.shiveshnavin.firestore.jdbc;
 
 import com.google.cloud.firestore.Firestore;
 

@@ -1,4 +1,4 @@
-package io.shiveshnavin.firestore;
+package io.github.shiveshnavin.firestore;
 
 public class FJLogger {
     public static void debug(String message){

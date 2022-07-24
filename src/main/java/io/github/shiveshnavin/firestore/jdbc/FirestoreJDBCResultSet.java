@@ -1,9 +1,7 @@
-package io.shiveshnavin.firestore.jdbc;
+package io.github.shiveshnavin.firestore.jdbc;
 
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import io.shiveshnavin.firestore.FJLogger;
-import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
+import io.github.shiveshnavin.firestore.FJLogger;
+import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -13,7 +11,6 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public class FirestoreJDBCResultSet implements ResultSet {
 

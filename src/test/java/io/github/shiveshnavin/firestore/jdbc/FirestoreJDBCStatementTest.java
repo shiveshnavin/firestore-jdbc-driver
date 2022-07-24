@@ -1,13 +1,9 @@
-package io.shiveshnavin.firestore.jdbc;
+package io.github.shiveshnavin.firestore.jdbc;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
-import static org.junit.jupiter.api.Assertions.*;
 @Disabled
 class FirestoreJDBCStatementTest {
 
