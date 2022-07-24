@@ -20,13 +20,13 @@ public class SampleController {
     public List<Message> home(){
 
 
-        List<Message> all = repo.findAll();
+        List<Message> all = repo.findAllById(List.of("TlT9KtH5Yt"));
         return all;
     }
 
     @PostConstruct
     public void test(){
-        List<Message> all = repo.findAll();
+        List<Message> all = repo.findByRecieverIdAndRead("abcde",0);
         System.out.println(all);
     }
 }

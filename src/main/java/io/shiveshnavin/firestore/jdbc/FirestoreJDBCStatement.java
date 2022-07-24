@@ -106,6 +106,22 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         }
     }
 
+    /**
+     * < less than
+     * <= less than or equal to
+     * == equal to
+     * > greater than
+     * >= greater than or equal to
+     * != not equal to
+     * array-contains
+     * array-contains-any
+     * in
+     * not-in
+     */
+    private void parseWhere(){
+
+
+    }
 
 
     @LoggingOperation

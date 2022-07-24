@@ -12,6 +12,9 @@ public class Message {
     @Id
     public String id;
 
+    public String recieverId;
+    public int read;
+
 
     @Override
     public String toString() {
