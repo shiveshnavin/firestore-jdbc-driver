@@ -5,7 +5,7 @@
 # Firestore JDBC Driver
 With the growing popularity of firebase as a free hosting for beginner projects. The ability to use firebase in most of the springboot projects is still not supported yet. Typically since firestore is a NoSQL based database hence SQL based JPA wont work there.
 
-This is where firestore-jdbc comes in. It provides the necessary conversions between the SQL from JPA as well as MySQL dialect based SQL statements into queries understandable by firestore. Simply plugging in the library to any springboot/hibernate based project will complete the integration.
+This is where firestore-jdbc comes in. It provides the necessary conversions between the SQL from JPA as well as MySQL dialect based SQL statements into queries understandable by firestore. Simply plugging in the library to any springboot/hibernate/JPA based project will complete the integration. Essentially the library provides a barebone firebase jdbc driver that you can use in your java projects even without springboot.
 
 ## Features
 
