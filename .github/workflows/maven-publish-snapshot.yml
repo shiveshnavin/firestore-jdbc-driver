@@ -3,10 +3,7 @@ name: Snapshot
 on:
   push:
     branches:
-      - release
       - master
-  release:
-    types: [created]
 
 jobs:
   build:
