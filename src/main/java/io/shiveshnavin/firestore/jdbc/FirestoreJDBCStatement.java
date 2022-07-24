@@ -7,14 +7,19 @@ import com.google.cloud.firestore.QuerySnapshot;
 import io.shiveshnavin.firestore.FJLogger;
 import io.shiveshnavin.firestore.aspect.LoggingOperation;
 import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
+import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
+import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColType;
 import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
@@ -24,6 +29,8 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class FirestoreJDBCStatement implements java.sql.Statement, PreparedStatement {
@@ -34,6 +41,9 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     private String tableName;
     private FirestoreJDBCResultSet firestoreJDBCResultSet;
     private String query;
+
+
+    private Map<String, FirestoreColDefinition> aliasToColumnMap;
 
     private enum QueryType {
         CREATE, INSERT, SELECT, UPDATE, DELETE, DROP
@@ -60,6 +70,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 queryType = QueryType.INSERT;
             } else if (parsedQuery instanceof Select) {
                 queryType = QueryType.SELECT;
+                parseSelect();
             } else if (parsedQuery instanceof Update) {
                 queryType = QueryType.UPDATE;
             } else if (parsedQuery instanceof Delete) {
@@ -68,6 +79,9 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 queryType = QueryType.DROP;
             }
 
+
+
+
             FJLogger.debug("QueryInfo: " + queryType.name() + " from table : " + tableName);
             this.tableName = tableName;
             return tableName;
@@ -75,6 +89,24 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             throw new FirestoreJDBCException(e);
         }
     }
+
+    private void parseSelect(){
+        Select stmt = (Select) parsedQuery;
+        aliasToColumnMap = new HashMap<>();
+
+        for (SelectItem selectItem : ((PlainSelect)stmt.getSelectBody()).getSelectItems()) {
+            selectItem.accept(new SelectItemVisitorAdapter() {
+                @Override
+                public void visit(SelectExpressionItem item) {
+                    Expression expr = item.getExpression();
+                    Alias alias = item.getAlias();
+                    aliasToColumnMap.put(alias.getName(), new FirestoreColDefinition(expr.toString(), FirestoreColType.STRING));
+                }
+            });
+        }
+    }
+
+
 
     @LoggingOperation
     @Override
@@ -85,7 +117,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         ApiFuture<QuerySnapshot> queryFuture = query.get();
         try {
             QuerySnapshot querySnapshot = queryFuture.get();
-            firestoreJDBCResultSet = new FirestoreJDBCResultSet();
+            firestoreJDBCResultSet = new FirestoreJDBCResultSet(aliasToColumnMap);
             firestoreJDBCResultSet.setQueryResult(querySnapshot);
             return firestoreJDBCResultSet;
         } catch (Exception e) {
