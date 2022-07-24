@@ -292,14 +292,14 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public int executeUpdate(String s) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         setQuery(s);
         return executeUpdate();
     }
 
     @Override
     public int executeUpdate(String s, int i) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         setQuery(s);
         return executeUpdate();
@@ -307,33 +307,33 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public int executeUpdate(String s, int[] ints) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
     @Override
     public int executeUpdate(String s, String[] strings) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
     @Override
     public boolean execute(String s, int i) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
     @Override
     public boolean execute(String s, int[] ints) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
     @Override
     public boolean execute(String s, String[] strings) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
@@ -341,7 +341,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public boolean execute(String s) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return executeWOResult(query) > 0;
     }
@@ -349,7 +349,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public int[] executeBatch() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
@@ -357,7 +357,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public ResultSet getResultSet() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return firestoreJDBCResultSet;
     }
@@ -365,40 +365,40 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void close() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
     }
 
     @Override
     public int getMaxFieldSize() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return 0;
     }
 
     @Override
     public void setMaxFieldSize(int i) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public int getMaxRows() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return (int)limit;
     }
 
     @Override
     public void setMaxRows(int i) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         limit = i;
     }
 
     @Override
     public void setEscapeProcessing(boolean b) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         throw new FirestoreJDBCException("Unsupported operation.");
 
 
@@ -406,21 +406,21 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public int getQueryTimeout() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return 0;
     }
 
     @Override
     public void setQueryTimeout(int i) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void cancel() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         throw new FirestoreJDBCException("Unsupported operation.");
 
 
@@ -428,21 +428,21 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return null;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setCursorName(String s) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
@@ -450,91 +450,91 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public int getUpdateCount() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return 0;
     }
 
     @Override
     public boolean getMoreResults() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return false;
     }
 
     @Override
     public void setFetchDirection(int i) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public int getFetchDirection() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return 0;
     }
 
     @Override
     public void setFetchSize(int i) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public int getFetchSize() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return 0;
     }
 
     @Override
     public int getResultSetConcurrency() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return 0;
     }
 
     @Override
     public int getResultSetType() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return 0;
     }
 
     @Override
     public void addBatch(String s) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void clearBatch() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public Connection getConnection() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return null;
     }
 
     @Override
     public boolean getMoreResults(int i) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return false;
     }
 
     @Override
     public ResultSet getGeneratedKeys() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return null;
     }
@@ -542,56 +542,56 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public int getResultSetHoldability() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return 0;
     }
 
     @Override
     public boolean isClosed() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return false;
     }
 
     @Override
     public void setPoolable(boolean b) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public boolean isPoolable() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return false;
     }
 
     @Override
     public void closeOnCompletion() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public boolean isCloseOnCompletion() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return false;
     }
 
     @Override
     public <T> T unwrap(Class<T> aClass) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return null;
     }
 
     @Override
     public boolean isWrapperFor(Class<?> aClass) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return false;
     }
@@ -611,7 +611,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return executeQuery(query);
     }
@@ -747,7 +747,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public int executeUpdate() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         parseQuery();
         if (queryType == QueryType.INSERT) {
             return performInsertQuery();
@@ -768,7 +768,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setNull(int i, int i1) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + i1);
 
 
@@ -776,7 +776,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setBoolean(int i, boolean b) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + b);
 
 
@@ -784,7 +784,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setByte(int i, byte b) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + b);
 
 
@@ -792,7 +792,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setShort(int i, short i1) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + i1);
 
 
@@ -800,14 +800,14 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setInt(int i, int i1) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + i1);
 
     }
 
     @Override
     public void setLong(int i, long l) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + l);
 
 
@@ -815,7 +815,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setFloat(int i, float v) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + v);
 
 
@@ -823,7 +823,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setDouble(int i, double v) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + v);
 
 
@@ -831,7 +831,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setBigDecimal(int i, BigDecimal bigDecimal) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + bigDecimal);
 
 
@@ -839,13 +839,13 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setString(int i, String s) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "'" + s + "'");
     }
 
     @Override
     public void setBytes(int i, byte[] bytes) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + new String(bytes));
 
 
@@ -853,7 +853,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setDate(int i, Date date) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + date);
 
 
@@ -861,7 +861,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setTime(int i, Time time) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + time);
 
 
@@ -869,7 +869,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setTimestamp(int i, Timestamp timestamp) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + timestamp);
 
 
@@ -877,21 +877,21 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setAsciiStream(int i, InputStream inputStream, int i1) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setUnicodeStream(int i, InputStream inputStream, int i1) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setBinaryStream(int i, InputStream inputStream, int i1) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         try {
             insertParameter(query, paramPositionMap.get(i), "" + CharStreams.toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8)));
         } catch (IOException e) {
@@ -902,7 +902,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void clearParameters() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         query = originalQuery;
 
 
@@ -910,7 +910,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setObject(int i, Object o, int i1) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + new Gson().toJson(o));
 
 
@@ -918,7 +918,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setObject(int i, Object o) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         insertParameter(query, paramPositionMap.get(i), "" + new Gson().toJson(o));
 
 
@@ -926,35 +926,35 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public boolean execute() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return false;
     }
 
     @Override
     public void addBatch() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setCharacterStream(int i, Reader reader, int i1) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setRef(int i, Ref ref) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setBlob(int i, Blob blob) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         try {
             insertParameter(query, paramPositionMap.get(i), new String(blob.getBinaryStream().readAllBytes()));
         } catch (IOException e) {
@@ -966,195 +966,195 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @Override
     public void setClob(int i, Clob clob) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
     }
 
     @Override
     public void setArray(int i, Array array) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return null;
     }
 
     @Override
     public void setDate(int i, Date date, Calendar calendar) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         setDate(i, date);
 
     }
 
     @Override
     public void setTime(int i, Time time, Calendar calendar) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         setTime(i, time);
 
     }
 
     @Override
     public void setTimestamp(int i, Timestamp timestamp, Calendar calendar) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         setTimestamp(i, timestamp);
 
     }
 
     @Override
     public void setNull(int i, int i1, String s) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         setNull(i, i1);
 
     }
 
     @Override
     public void setURL(int i, URL url) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
         setString(i, url.toString());
 
     }
 
     @Override
     public ParameterMetaData getParameterMetaData() throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
         return null;
     }
 
     @Override
     public void setRowId(int i, RowId rowId) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setNString(int i, String s) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setNCharacterStream(int i, Reader reader, long l) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setNClob(int i, NClob nClob) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setClob(int i, Reader reader, long l) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setBlob(int i, InputStream inputStream, long l) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setNClob(int i, Reader reader, long l) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setSQLXML(int i, SQLXML sqlxml) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setObject(int i, Object o, int i1, int i2) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setAsciiStream(int i, InputStream inputStream, long l) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setBinaryStream(int i, InputStream inputStream, long l) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setCharacterStream(int i, Reader reader, long l) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setAsciiStream(int i, InputStream inputStream) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setBinaryStream(int i, InputStream inputStream) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setCharacterStream(int i, Reader reader) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setNCharacterStream(int i, Reader reader) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setClob(int i, Reader reader) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setBlob(int i, InputStream inputStream) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
 
     @Override
     public void setNClob(int i, Reader reader) throws SQLException {
-        FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        FirestoreJDBCResultSet.printCurrentMethod();
 
 
     }
