@@ -22,20 +22,6 @@ public class QueryTest {
     }
 
     @Test
-    @Disabled
-    public void testFirestoreJDBC() throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.executeQuery("UPDATE message SET l=1 WHERE k=2");
-        ResultSet resultSet = statement.getResultSet();
-        int resultSize = resultSet.getFetchSize();
-
-        assert resultSize > 0;
-
-    }
-
-
-    @Disabled
-    @Test
     public void testCount() throws Exception{
         String sql = "select count(user0_.id) as col_0_0_ from product user0_";
         Statement statement = connection.createStatement();
@@ -48,7 +34,7 @@ public class QueryTest {
 
 
 
-    @Disabled
+
     @Test
     public void testGE() throws Exception{
         String sql = "select (user0_.id) as col_0_0_ from product user0_ where amount >= 100";
@@ -61,7 +47,7 @@ public class QueryTest {
     }
 
 
-    @Disabled
+
     @Test
     public void testBW() throws Exception{
         String sql = "select (user0_.id) as col_0_0_ from product user0_ where amount between 190 and 200";
