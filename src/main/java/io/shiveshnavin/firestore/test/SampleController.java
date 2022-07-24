@@ -24,7 +24,7 @@ public class SampleController {
         return all;
     }
 
-    @PostConstruct
+//    @PostConstruct
     public void test(){
         List<Message> all = repo.findByRecieverIdAndRead("abcde",0);
         System.out.println(all);
