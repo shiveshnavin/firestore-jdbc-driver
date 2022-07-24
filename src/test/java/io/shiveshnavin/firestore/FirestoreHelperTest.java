@@ -17,11 +17,13 @@ class FirestoreHelperTest {
     }
 
     @Test
+    @Disabled
     void getDefaultDatabase() {
         assertNotNull(firestoreHelper.getDefaultDatabase());
     }
 
     @Test
+    @Disabled
     void getFirebaseDatabase() {
         assertNotNull(firestoreHelper.getFirebaseDatabase("test-a0930"));
     }

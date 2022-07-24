@@ -3,28 +3,51 @@ With the growing popularity of firebase as a free hosting for beginner projects.
 
 This is where firestore-jdbc comes in. It provides the necessary conversions between the SQL from JPA as well as MySQL dialect based SQL statements into queries understandable by firestore. Simply plugging in the library to any springboot/hibernate based project will complete the integration.
 
+## Features
+
+All basic operations available in firestore are supported
+https://firebase.google.com/docs/firestore/manage-data/add-data
+
 ## Installation
 
 ```xml
 TODO : download from maven central
 ```
 
-## Features
-
-All basic operations available in firestore are supported
-https://firebase.google.com/docs/firestore/manage-data/add-data
-
 ## Usage
 1. Download the firebase service account file for your project
    https://firebase.google.com/docs/admin/setup
 2. Add these to `application.properties`
 ```properties
-spring.datasource.url=test-a0930.json
+spring.datasource.url=path/to/your/service-account.json
 spring.datasource.driver-class-name=io.shiveshnavin.firestore.jdbc.FirestoreJDBCDriver
 ```
-3. Register the driver
+3. Create a `LocalSessionFactoryBean` bean in your `@Configuration` class and replace `com.example.domain.model` with your domain model package
 ```java
-DriverManager.registerDriver(new FirestoreJDBCDriver());
+@Configuration
+public class Config {
+
+   @Autowired
+   DataSource dataSource;
+   @Bean
+   public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+      HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+      vendorAdapter.setGenerateDdl(true);
+
+      LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+      Properties props = new Properties();
+      props.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
+      props.put("hibernate.hbm2ddl.auto", "none");
+      factory.setJpaProperties(props);
+      factory.setJpaVendorAdapter(vendorAdapter);
+      
+      // Add the packages containing your model POJO classes
+      factory.setPackagesToScan(new String[]{"com.example.domain.model"});
+
+      factory.setDataSource(dataSource);
+      return factory;
+   } 
+}
 ```
 4. In all your Entity classes make sure to specify `@Table` and table name (case sensitive)
 ```java

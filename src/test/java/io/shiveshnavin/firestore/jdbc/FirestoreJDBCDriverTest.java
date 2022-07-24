@@ -18,6 +18,7 @@ class FirestoreJDBCDriverTest {
 
     }
 
+    @Disabled
     @Test
     void connect() throws Exception {
         DriverManager.registerDriver(new FirestoreJDBCDriver());

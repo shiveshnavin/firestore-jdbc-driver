@@ -18,6 +18,7 @@ class FirestoreJDBCStatementTest {
         conn = TestHelper.getConnection();
     }
 
+    @Disabled
     @Test
     void executeQuery_1() throws Exception {
 
@@ -28,35 +29,4 @@ class FirestoreJDBCStatementTest {
 
     }
 
-    @Test
-    void executeUpdate() {
-    }
-
-    @Test
-    void testExecuteUpdate() {
-    }
-
-    @Test
-    void testExecuteUpdate1() {
-    }
-
-    @Test
-    void testExecuteUpdate2() {
-    }
-
-    @Test
-    void execute() {
-    }
-
-    @Test
-    void testExecute() {
-    }
-
-    @Test
-    void testExecute1() {
-    }
-
-    @Test
-    void testExecute2() {
-    }
 }
