@@ -18,25 +18,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up JDK 11
+    - name: Set up Apache Maven Central
       uses: actions/setup-java@v3
-      with:
-        java-version: '11'
+      with: # running setup-java again overwrites the settings.xml
+        java-version: 8
         distribution: 'temurin'
-        server-id: ossrh 
-        settings-path: ${{ github.workspace }} 
+        cache: 'maven'
+        server-id: ossrh # Value of the distributionManagement/repository/id field of the pom.xml
         server-username: OSS_USERNAME # env variable for username in deploy
         server-password: OSS_PASSWORD # env variable for token in deploy
         gpg-private-key: ${{ secrets.GPG_SIGNING_KEY }} # Value of the GPG private key to import
-        gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }} # env variable for GPG private key passphrase
+        gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
 
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-
-    - name: Publish package
-      run: mvn --batch-mode deploy
+    - name: Publish to Apache Maven Central
+      run: mvn deploy
       env:
-         MAVEN_USERNAME: ${{ secrets.OSS_USERNAME }}
-         MAVEN_PASSWORD: ${{ secrets.OSS_PASSWORD }}
-      
-
+        OSS_USERNAME: ${{ secrets.OSS_USERNAME }}
+        OSS_PASSWORD: ${{ secrets.OSS_PASSWORD }}
+        MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
