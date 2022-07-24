@@ -65,7 +65,7 @@ public class Config {
    } 
 }
 ```
-4. In all your Entity classes make sure to specify `@Table` and table name (case sensitive)
+4. In all your Entity classes make sure to specify `@Table` and table name (case sensitive). Basically this is the collection name. If you skip explicitly adding the `name` the collection name will be defined by JPA.
 ```java
 @Entity
 @Table(name="users")
