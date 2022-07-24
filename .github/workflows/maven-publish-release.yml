@@ -33,3 +33,5 @@ jobs:
         nexus_username: ${{ secrets.OSS_USERNAME }}
         nexus_password: ${{ secrets.OSS_PASSWORD }}
         maven_profiles: release
+        maven_args: -P release
+        maven_goals_phases: clean deploy -P release
