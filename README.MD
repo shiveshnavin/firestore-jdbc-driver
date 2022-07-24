@@ -9,11 +9,22 @@ All basic operations available in firestore are supported
 https://firebase.google.com/docs/firestore/manage-data/add-data
 
 ## Installation
-
+Release
 ```xml
-TODO : download from maven central
+<dependency>
+   <groupId>io.github.shiveshnavin</groupId>
+   <artifactId>firestore-jdbc</artifactId>
+   <version>1.0.0</version>
+</dependency>
 ```
-
+Snapshot (Experimental)
+```xml
+<dependency>
+   <groupId>io.github.shiveshnavin</groupId>
+   <artifactId>firestore-jdbc</artifactId>
+   <version>1.0.1-SNAPSHOT</version>
+</dependency>
+```
 ## Usage
 1. Download the firebase service account file for your project
    https://firebase.google.com/docs/admin/setup
