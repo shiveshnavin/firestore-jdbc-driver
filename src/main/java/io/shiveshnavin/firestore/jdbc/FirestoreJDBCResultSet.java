@@ -100,7 +100,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public String getString(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
         FirestoreColDefinition col = colDefinitionMap.get(s);
-        String colname = col.getColNameFromQualified();
+        String colname = FirestoreColDefinition.getColNameFromQualified(col.getColumnName());
         String value = getDocumentPointer().getString(colname);
         return value;
     }

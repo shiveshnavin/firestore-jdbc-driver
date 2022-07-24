@@ -17,16 +17,16 @@ public class SampleController {
 
     @LoggingOperation
     @RequestMapping
-    public List<Message> home(){
+    public List<User> home(){
 
 
-        List<Message> all = repo.findAllById(List.of("TlT9KtH5Yt"));
+        List<User> all = repo.findAllById(List.of("TlT9KtH5Yt"));
         return all;
     }
 
 //    @PostConstruct
     public void test(){
-        List<Message> all = repo.findByRecieverIdAndRead("abcde",0);
+        List<User> all = repo.findByNameAndUserseq("abcde",0);
         System.out.println(all);
     }
 }

@@ -13,9 +13,11 @@ import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
 import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColType;
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.Alias;
-import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
@@ -44,10 +46,11 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     private FirestoreJDBCResultSet firestoreJDBCResultSet;
     private String originalQuery;
     private String query;
-    private Map<Integer,Integer> paramPositionMap = new HashMap<>();
+    private Map<Integer, Integer> paramPositionMap = new HashMap<>();
 
 
     private Map<String, FirestoreColDefinition> aliasToColumnMap;
+    private Query conditionalQuery;
 
     private enum QueryType {
         CREATE, INSERT, SELECT, UPDATE, DELETE, DROP
@@ -87,9 +90,9 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             }
 
             int paramNo = 1;
-            for(int i=0;i<query.length();i++){
-                if(query.charAt(i) == '?'){
-                    paramPositionMap.put(paramNo++,i);
+            for (int i = 0; i < query.length(); i++) {
+                if (query.charAt(i) == '?') {
+                    paramPositionMap.put(paramNo++, i);
                 }
             }
 
@@ -128,21 +131,69 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
      * in
      * not-in
      */
-    private Query parseWhere(Expression statement) {
+    private void parseWhere(Expression statement) {
         CollectionReference collRef = db.collection(tableName);
         Query query = collRef;
+        query = scanWhere(statement, query);
+        setConditionalQuery(query);
+    }
+
+    public Query getConditionalQuery() {
+        return conditionalQuery;
+    }
+
+    public void setConditionalQuery(Query conditionalQuery) {
+        this.conditionalQuery = conditionalQuery;
+    }
+
+
+    private Query scanWhere(Expression cur, Query query) {
+        if (cur instanceof AndExpression) {
+            query = scanWhere(((AndExpression) cur).getLeftExpression(), query);
+            query = scanWhere(((AndExpression) cur).getRightExpression(), query);
+        } else {
+            ComparisonOperator exp = (ComparisonOperator) cur;
+            String colName = ((Column) ((ComparisonOperator) cur).getLeftExpression()).getColumnName();
+            Object value = exp.getRightExpression().toString();
+
+            if (exp.getRightExpression() instanceof StringValue) {
+                value = ((StringValue) exp.getRightExpression()).getValue();
+            } else if (exp.getRightExpression() instanceof net.sf.jsqlparser.expression.DoubleValue) {
+                value = (((DoubleValue) exp.getRightExpression()).getValue());
+            } else if (exp.getRightExpression() instanceof net.sf.jsqlparser.expression.DateValue) {
+                value = ((DateValue) exp.getRightExpression()).getValue();
+            }else if (exp.getRightExpression() instanceof net.sf.jsqlparser.expression.LongValue) {
+                value = ((LongValue) exp.getRightExpression()).getValue();
+            }
+
+            if (cur instanceof EqualsTo) {
+                query = query.whereEqualTo(colName, value);
+            } else if (cur instanceof GreaterThan) {
+                query = query.whereGreaterThan(colName, value);
+            } else if (cur instanceof GreaterThanEquals) {
+                query = query.whereGreaterThanOrEqualTo(colName, value);
+            } else if (cur instanceof MinorThan) {
+                query = query.whereGreaterThanOrEqualTo(colName, value);
+            } else if (cur instanceof MinorThanEquals) {
+                query = query.whereGreaterThanOrEqualTo(colName, value);
+            } else if (cur instanceof NotEqualsTo) {
+                query = query.whereGreaterThanOrEqualTo(colName, value);
+            } else if (cur instanceof InExpression) {
+                query = query.whereGreaterThanOrEqualTo(colName, value);
+            } else if (cur instanceof IsNullExpression) {
+                query = query.whereGreaterThanOrEqualTo(colName, value);
+            } else if (cur instanceof Between) {
+                query = query.whereGreaterThanOrEqualTo(colName, value);
+            } else {
+                throw new FirestoreJDBCException("Operation not supported " + cur.toString());
+            }
+        }
         return query;
     }
 
 
-    @LoggingOperation
-    @Override
-    public ResultSet executeQuery(String sql) {
-        query = sql;
-        originalQuery = sql;
-        parseQuery();
-        CollectionReference collRef = db.collection(tableName);
-        Query query = collRef;
+    private ResultSet performSelectQuery() {
+        Query query = getConditionalQuery();
 
         ApiFuture<QuerySnapshot> queryFuture = query.get();
         try {
@@ -153,6 +204,20 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         } catch (Exception e) {
             throw new FirestoreJDBCException(e);
         }
+    }
+
+    @LoggingOperation
+    @Override
+    public ResultSet executeQuery(String sql) {
+        query = sql;
+        originalQuery = sql;
+        parseQuery();
+        if (queryType == QueryType.SELECT) {
+            return performSelectQuery();
+        } else {
+            throw new FirestoreJDBCException("Query not supported exception");
+        }
+
     }
 
     private int executeWOResult(String query) {
@@ -477,13 +542,12 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     }
 
 
-
     private void insertParameter(String s, int pos, String c) {
 
         query = s.substring(0, pos) + c + s.substring(pos + 1);
-        for(var key:paramPositionMap.keySet()){
-            if(paramPositionMap.get(key) > pos){
-                paramPositionMap.put(key,paramPositionMap.get(key) + c.length() - 1);
+        for (var key : paramPositionMap.keySet()) {
+            if (paramPositionMap.get(key) > pos) {
+                paramPositionMap.put(key, paramPositionMap.get(key) + c.length() - 1);
             }
         }
     }
@@ -505,7 +569,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setNull(int i, int i1) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+i1);
+        insertParameter(query, paramPositionMap.get(i), "" + i1);
 
 
     }
@@ -513,7 +577,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setBoolean(int i, boolean b) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+b);
+        insertParameter(query, paramPositionMap.get(i), "" + b);
 
 
     }
@@ -521,7 +585,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setByte(int i, byte b) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+b);
+        insertParameter(query, paramPositionMap.get(i), "" + b);
 
 
     }
@@ -529,7 +593,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setShort(int i, short i1) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+i1);
+        insertParameter(query, paramPositionMap.get(i), "" + i1);
 
 
     }
@@ -537,14 +601,14 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setInt(int i, int i1) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+i1);
+        insertParameter(query, paramPositionMap.get(i), "" + i1);
 
     }
 
     @Override
     public void setLong(int i, long l) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+l);
+        insertParameter(query, paramPositionMap.get(i), "" + l);
 
 
     }
@@ -552,7 +616,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setFloat(int i, float v) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+v);
+        insertParameter(query, paramPositionMap.get(i), "" + v);
 
 
     }
@@ -560,7 +624,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setDouble(int i, double v) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+v);
+        insertParameter(query, paramPositionMap.get(i), "" + v);
 
 
     }
@@ -568,7 +632,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setBigDecimal(int i, BigDecimal bigDecimal) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+bigDecimal);
+        insertParameter(query, paramPositionMap.get(i), "" + bigDecimal);
 
 
     }
@@ -582,7 +646,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setBytes(int i, byte[] bytes) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+new String(bytes));
+        insertParameter(query, paramPositionMap.get(i), "" + new String(bytes));
 
 
     }
@@ -590,7 +654,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setDate(int i, Date date) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+date);
+        insertParameter(query, paramPositionMap.get(i), "" + date);
 
 
     }
@@ -598,7 +662,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setTime(int i, Time time) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+time);
+        insertParameter(query, paramPositionMap.get(i), "" + time);
 
 
     }
@@ -606,7 +670,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setTimestamp(int i, Timestamp timestamp) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+timestamp);
+        insertParameter(query, paramPositionMap.get(i), "" + timestamp);
 
 
     }
@@ -629,7 +693,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     public void setBinaryStream(int i, InputStream inputStream, int i1) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
         try {
-            insertParameter(query, paramPositionMap.get(i), ""+ CharStreams.toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8)));
+            insertParameter(query, paramPositionMap.get(i), "" + CharStreams.toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8)));
         } catch (IOException e) {
             throw new SQLException(e);
         }
@@ -647,7 +711,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setObject(int i, Object o, int i1) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+new Gson().toJson(o));
+        insertParameter(query, paramPositionMap.get(i), "" + new Gson().toJson(o));
 
 
     }
@@ -655,7 +719,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setObject(int i, Object o) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, paramPositionMap.get(i), ""+new Gson().toJson(o));
+        insertParameter(query, paramPositionMap.get(i), "" + new Gson().toJson(o));
 
 
     }
@@ -723,35 +787,35 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setDate(int i, Date date, Calendar calendar) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        setDate(i,date);
+        setDate(i, date);
 
     }
 
     @Override
     public void setTime(int i, Time time, Calendar calendar) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        setTime(i,time);
+        setTime(i, time);
 
     }
 
     @Override
     public void setTimestamp(int i, Timestamp timestamp, Calendar calendar) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        setTimestamp(i,timestamp);
+        setTimestamp(i, timestamp);
 
     }
 
     @Override
     public void setNull(int i, int i1, String s) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        setNull(i,i1);
+        setNull(i, i1);
 
     }
 
     @Override
     public void setURL(int i, URL url) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        setString(i,url.toString());
+        setString(i, url.toString());
 
     }
 

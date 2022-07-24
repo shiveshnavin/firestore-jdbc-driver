@@ -15,7 +15,7 @@ class SampleRepoTest {
 
     @Test
     void testSelectWhere() {
-        List<Message> all = repo.findByRecieverIdAndRead("abcde",0);
+        List<User> all = repo.findByNameAndUserseq("shivesh navin",5);
         System.out.println(all);
     }
 }

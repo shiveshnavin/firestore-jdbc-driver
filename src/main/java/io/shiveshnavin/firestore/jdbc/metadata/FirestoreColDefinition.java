@@ -13,7 +13,7 @@ public class FirestoreColDefinition {
     }
 
 
-    public String getColNameFromQualified() {
+    public static String getColNameFromQualified(String columnName) {
         if (columnName.contains(".")) {
             String[] split = columnName.split("\\.");
             return split[split.length - 1];

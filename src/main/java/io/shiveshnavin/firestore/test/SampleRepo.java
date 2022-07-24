@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SampleRepo extends JpaRepository<Message,String> {
+public interface SampleRepo extends JpaRepository<User,String> {
 
-    List<Message> findByRecieverIdAndRead(String id, int read);
+    List<User> findByNameAndUserseq(String name, int userSeq);
 
 }
