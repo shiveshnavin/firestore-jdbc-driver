@@ -3,7 +3,8 @@ name: Maven Deploy
 on:
   push:
     branches:
-      release
+      - release
+      - master
   release:
     types: [created]
 
