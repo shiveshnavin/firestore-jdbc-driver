@@ -114,10 +114,6 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
-                        <configuration>
-                            <keyname>${env.GPG_KEYNAME_S3}</keyname>
-                            <passphraseServerId>${env.GPG_KEYNAME_S3}</passphraseServerId>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
