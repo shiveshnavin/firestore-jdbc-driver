@@ -35,6 +35,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class FirestoreJDBCStatement implements java.sql.Statement, PreparedStatement {
@@ -107,13 +108,15 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         Select stmt = (Select) parsedQuery;
         aliasToColumnMap = new HashMap<>();
 
+        AtomicInteger integer = new AtomicInteger(0);
         for (SelectItem selectItem : ((PlainSelect) stmt.getSelectBody()).getSelectItems()) {
             selectItem.accept(new SelectItemVisitorAdapter() {
                 @Override
                 public void visit(SelectExpressionItem item) {
                     Expression expr = item.getExpression();
                     Alias alias = item.getAlias();
-                    aliasToColumnMap.put(alias.getName(), new FirestoreColDefinition(expr.toString(), FirestoreColType.STRING));
+
+                    aliasToColumnMap.put(alias.getName(), new FirestoreColDefinition(integer.getAndAdd(1), expr.toString(), FirestoreColType.STRING));
                 }
             });
         }

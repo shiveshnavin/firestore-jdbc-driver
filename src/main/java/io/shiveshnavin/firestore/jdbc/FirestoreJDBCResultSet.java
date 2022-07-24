@@ -58,7 +58,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
         StackTraceElement[] stackTrace = Thread.currentThread()
                 .getStackTrace();
         System.out.println("Method : " + stackTrace[2].getClassName() +
-                "[" + stackTrace[2].getLineNumber() + "] - " + stackTrace[2].getMethodName()+"()");
+                "[" + stackTrace[2].getLineNumber() + "] - " + stackTrace[2].getMethodName() + "()");
 
     }
 
@@ -94,6 +94,11 @@ public class FirestoreJDBCResultSet implements ResultSet {
         return null;
     }
 
+    private String getQualComName(String alias) {
+        FirestoreColDefinition col = colDefinitionMap.get(alias);
+        String colname = FirestoreColDefinition.getColNameFromQualified(col.getColumnName());
+        return colname;
+    }
 
     @LoggingOperation
     @Override
@@ -110,7 +115,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public boolean getBoolean(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return false;
+        return getDocumentPointer().getBoolean(getQualComName(s));
     }
 
     @LoggingOperation
@@ -118,7 +123,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public byte getByte(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getDocumentPointer().getBlob(getQualComName(s)).toBytes()[0];
     }
 
     @LoggingOperation
@@ -126,7 +131,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public short getShort(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return (short) getDocumentPointer().getLong(getQualComName(s)).intValue();
     }
 
     @LoggingOperation
@@ -134,7 +139,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public int getInt(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getDocumentPointer().getLong(getQualComName(s)).intValue();
     }
 
     @LoggingOperation
@@ -142,7 +147,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public long getLong(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getDocumentPointer().getLong(getQualComName(s));
     }
 
     @LoggingOperation
@@ -150,7 +155,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public float getFloat(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getDocumentPointer().getDouble(getQualComName(s)).floatValue();
     }
 
     @LoggingOperation
@@ -158,7 +163,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public double getDouble(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getDocumentPointer().getDouble(getQualComName(s));
     }
 
     @LoggingOperation
@@ -166,7 +171,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public BigDecimal getBigDecimal(String s, int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return new BigDecimal(getDocumentPointer().getDouble(getQualComName(s)));
     }
 
     @LoggingOperation
@@ -174,7 +179,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public byte[] getBytes(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return new byte[0];
+        return getDocumentPointer().getBlob(getQualComName(s)).toBytes();
     }
 
     @LoggingOperation
@@ -182,7 +187,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Date getDate(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return new Date(getDocumentPointer().getDate(getQualComName(s)).getTime());
     }
 
     @LoggingOperation
@@ -190,7 +195,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Time getTime(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return new Time(getDocumentPointer().getDate(getQualComName(s)).getTime());
     }
 
     @LoggingOperation
@@ -198,7 +203,13 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Timestamp getTimestamp(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return new Timestamp(getDocumentPointer().getDate(getQualComName(s)).getTime());
+    }
+
+    private String getColNameFromIndex(int idx) {
+        return colDefinitionMap.entrySet().stream().
+                filter(e -> e.getValue().getIndex() == idx).
+                findAny().get().getValue().getColumnName();
     }
 
     @LoggingOperation
@@ -206,7 +217,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public String getString(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return getString(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -214,7 +225,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public boolean getBoolean(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return false;
+        return getBoolean(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -222,7 +233,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public byte getByte(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getByte(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -230,7 +241,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public short getShort(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getShort(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -238,7 +249,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public int getInt(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getInt(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -246,7 +257,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public long getLong(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getLong(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -254,7 +265,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public float getFloat(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getFloat(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -262,7 +273,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public double getDouble(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return getDouble(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -270,7 +281,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public BigDecimal getBigDecimal(int i, int i1) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return getBigDecimal(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -278,7 +289,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public byte[] getBytes(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return new byte[0];
+        return getBytes(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -286,7 +297,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Date getDate(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return getDate(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -294,7 +305,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Time getTime(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return getTime(getColNameFromIndex(i));
     }
 
     @LoggingOperation
@@ -302,7 +313,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Timestamp getTimestamp(int i) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return null;
+        return getTimestamp(getColNameFromIndex(i));
     }
 
 
