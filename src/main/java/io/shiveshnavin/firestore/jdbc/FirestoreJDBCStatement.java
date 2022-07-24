@@ -25,15 +25,12 @@ import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.io.*;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.sql.Blob;
 import java.sql.Date;
-import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -639,6 +636,60 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         return 1;
     }
 
+
+    private int performUpdateQuery() throws FirestoreJDBCException {
+        Update update = (Update) parsedQuery;
+        List<Column> cols = update.getColumns();
+        List<Expression> values = update.getExpressions();
+        values.get(0).getASTNode().jjtGetValue();
+        Map<String, Object> data = new HashMap<>();
+        for (int i = 0; i < values.size(); i++) {
+            Expression exp = values.get(i);
+            Object value = "";
+            if (exp instanceof Column) {
+                value = ((Column) exp).getColumnName();
+            } else if (exp instanceof StringValue) {
+                value = ((StringValue) exp).getValue();
+            } else if (exp instanceof net.sf.jsqlparser.expression.DoubleValue) {
+                value = (((DoubleValue) exp).getValue());
+            } else if (exp instanceof net.sf.jsqlparser.expression.DateValue) {
+                value = ((DateValue) exp).getValue();
+            } else if (exp instanceof net.sf.jsqlparser.expression.LongValue) {
+                value = ((LongValue) exp).getValue();
+            }
+            data.put(cols.get(i).getColumnName(), value);
+
+        }
+
+        try {
+
+            Query itemsQuery = getConditionalQuery();
+            ApiFuture<QuerySnapshot> snapshot = itemsQuery.get();
+            QuerySnapshot toDelete = snapshot.get();
+            List<QueryDocumentSnapshot> dbList = toDelete.getDocuments();
+
+            for (int i = 0; i < dbList.size(); i += 500) {
+                List<QueryDocumentSnapshot> sub = dbList.subList(i, Math.min(dbList.size(), i + 500));
+                WriteBatch batch = db.batch();
+
+                sub.forEach(doc -> {
+                    batch.update(doc.getReference(), data);
+                });
+
+                ApiFuture<List<WriteResult>> future = batch.commit();
+                future.get();
+
+
+            }
+
+            return toDelete.size();
+        } catch (Exception e) {
+            throw new FirestoreJDBCException(e);
+        }
+
+
+    }
+
     public int performDelete() {
         Query itemsQuery = getConditionalQuery();
         ApiFuture<QuerySnapshot> snapshot = itemsQuery.get();
@@ -677,7 +728,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         if (queryType == QueryType.INSERT) {
             return performInsertQuery();
         } else if (queryType == QueryType.UPDATE) {
-
+            return performUpdateQuery();
         } else if (queryType == QueryType.DELETE) {
             return performDelete();
         }
