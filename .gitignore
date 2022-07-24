@@ -160,3 +160,4 @@ $RECYCLE.BIN/
 .idea/
 
 src/main/resources/keys/
+**/test-a0930.json

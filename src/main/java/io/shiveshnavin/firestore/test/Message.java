@@ -9,5 +9,5 @@ public class Message {
 
     @Id
     String id;
-    String message;
+
 }

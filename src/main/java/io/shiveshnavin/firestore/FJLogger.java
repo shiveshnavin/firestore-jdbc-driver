@@ -6,6 +6,6 @@ public class FJLogger {
     }
 
     public static void debug(Object message){
-        System.out.println(message.toString());
+        System.out.println("FJLogger : "+message.toString());
     }
 }
