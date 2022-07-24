@@ -2,6 +2,7 @@ package io.shiveshnavin.firestore.jdbc;
 
 import io.shiveshnavin.firestore.FirestoreHelper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
@@ -9,7 +10,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+@Disabled
 class FirestoreJDBCDriverTest {
 
     @BeforeEach
