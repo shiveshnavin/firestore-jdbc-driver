@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -73,6 +74,7 @@ class SampleRepoTest {
     }
 
 
+    @Disabled
     @Test
     @Transactional
     void updateTest() {
@@ -94,4 +96,17 @@ class SampleRepoTest {
         session.createQuery(criteria).executeUpdate();
 
     }
+
+    @Test
+    void orderByTest() {
+        List<Product> all = repo.findAll(PageRequest.of(1, 5,
+                Sort.by(Sort.Direction.DESC, "amount")
+                        .and(Sort.by(Sort.Direction.ASC, "timeStamp"))
+        )).toList();
+
+        for(var p:all){
+            System.out.println(p);
+        }
+    }
+
 }

@@ -32,7 +32,6 @@ import java.sql.*;
 import java.sql.Blob;
 import java.sql.Date;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -53,6 +52,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     private Map<String, FirestoreColDefinition> aliasToColumnMap;
     private Query conditionalQuery;
 
+    private List<OrderByElement> orderByElements;
     private long limit = 0;
     private long offset = 0;
     private boolean isCountQuery = false;
@@ -92,6 +92,8 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 parseWhere(((Delete) parsedQuery).getWhere());
             } else if (parsedQuery instanceof Drop) {
                 queryType = QueryType.DROP;
+            } else {
+                throw new FirestoreJDBCException("Query not supported exception : " + parsedQuery.getClass().getSimpleName());
             }
 
             int paramNo = 1;
@@ -125,6 +127,8 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 //            limit = limits.getRowCount();
 //            offset = limits.getOffset();
         }
+
+        orderByElements = (((PlainSelect) ((Select) parsedQuery).getSelectBody()).getOrderByElements());
 
         AtomicInteger integer = new AtomicInteger(0);
         for (SelectItem selectItem : ((PlainSelect) stmt.getSelectBody()).getSelectItems()) {
@@ -182,6 +186,15 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         if (cur instanceof AndExpression) {
             query = scanWhere(((AndExpression) cur).getLeftExpression(), query);
             query = scanWhere(((AndExpression) cur).getRightExpression(), query);
+        } else if (cur instanceof InExpression) {
+            throw new FirestoreJDBCException("Operation not supported : " + cur.toString());
+
+        } else if (cur instanceof IsNullExpression) {
+            throw new FirestoreJDBCException("Operation not supported : " + cur.toString());
+
+        } else if (cur instanceof Between) {
+            throw new FirestoreJDBCException("Operation not supported : " + cur.toString());
+
         } else {
             ComparisonOperator exp = (ComparisonOperator) cur;
             String colName = ((Column) ((ComparisonOperator) cur).getLeftExpression()).getColumnName();
@@ -209,14 +222,8 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 query = query.whereLessThanOrEqualTo(colName, value);
             } else if (cur instanceof NotEqualsTo) {
                 query = query.whereNotEqualTo(colName, value);
-            } else if (cur instanceof InExpression) {
-                query = query.whereIn(colName, (List<? extends Object>) value);
-            } else if (cur instanceof IsNullExpression) {
-                query = query.whereEqualTo(colName, null);
-            } else if (cur instanceof Between) {
-                query = query.whereGreaterThanOrEqualTo(colName, value);
             } else {
-                throw new FirestoreJDBCException("Operation not supported " + cur.toString());
+                throw new FirestoreJDBCException("Operation not supported : " + cur.toString());
             }
         }
         return query;
@@ -230,6 +237,16 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         }
         if (offset > 0) {
             query = query.offset((int) offset);
+        }
+        if (orderByElements != null && !orderByElements.isEmpty()) {
+            for (OrderByElement order : orderByElements) {
+                Query.Direction direction = order.isAsc() ? Query.Direction.ASCENDING : Query.Direction.DESCENDING;
+                order.getExpression();
+                if (order.getExpression() instanceof Column) {
+                    Column column = (Column) order.getExpression();
+                    query = query.orderBy(column.getColumnName(), direction);
+                }
+            }
         }
 
         ApiFuture<QuerySnapshot> queryFuture = query.get();
@@ -255,69 +272,72 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     @LoggingOperation
     @Override
-    public ResultSet executeQuery(String sql) {
+    public ResultSet executeQuery(String sql) throws SQLException {
         query = sql;
         originalQuery = sql;
         parseQuery();
         if (queryType == QueryType.SELECT) {
             return performSelectQuery();
         } else {
-            throw new FirestoreJDBCException("Query not supported exception");
+            int rowCount = executeWOResult(sql);
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("rows", rowCount);
+            firestoreJDBCResultSet = new FirestoreJDBCResultSet(aliasToColumnMap);
+            firestoreJDBCResultSet.setQueryResult(List.of(new QuerySnapshotWrapper(null, data)));
+            return firestoreJDBCResultSet;
         }
-
     }
 
-    private int executeWOResult(String query) {
-        return 1;
+    private int executeWOResult(String query) throws SQLException {
+        return executeUpdate(query);
     }
 
     @Override
     public int executeUpdate(String s) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-
-        return 0;
+        setQuery(s);
+        return executeUpdate();
     }
 
     @Override
     public int executeUpdate(String s, int i) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        setQuery(s);
+        return executeUpdate();
     }
 
     @Override
     public int executeUpdate(String s, int[] ints) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-
-        return 0;
+        throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
     @Override
     public int executeUpdate(String s, String[] strings) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-
-        return 0;
+        throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
     @Override
     public boolean execute(String s, int i) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return false;
+        throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
     @Override
     public boolean execute(String s, int[] ints) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return false;
+        throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
     @Override
     public boolean execute(String s, String[] strings) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return false;
+        throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
 
@@ -333,7 +353,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     public int[] executeBatch() throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return new int[0];
+        throw new FirestoreJDBCException("Unsupported operation.Please use PreparedStatement Instead");
     }
 
 
@@ -348,7 +368,6 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void close() throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-
 
     }
 
@@ -370,19 +389,19 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     public int getMaxRows() throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
-        return 0;
+        return (int)limit;
     }
 
     @Override
     public void setMaxRows(int i) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-
-
+        limit = i;
     }
 
     @Override
     public void setEscapeProcessing(boolean b) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        throw new FirestoreJDBCException("Unsupported operation.");
 
 
     }
@@ -404,6 +423,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void cancel() throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        throw new FirestoreJDBCException("Unsupported operation.");
 
 
     }

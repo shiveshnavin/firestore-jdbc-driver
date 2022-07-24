@@ -25,7 +25,9 @@ public class FirestoreColDefinition {
     public static String getColNameFromQualified(String columnName) {
         if (columnName.contains(".")) {
             String[] split = columnName.split("\\.");
-            return split[split.length - 1];
+            String colName = split[split.length - 1];
+            colName = colName.replaceAll("[^a-zA-Z0-9.-_]", "");
+            return colName;
         }
         return columnName;
     }

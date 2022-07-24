@@ -238,7 +238,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Timestamp getTimestamp(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
         if (getDocumentPointer().contains(s))
-            return new Timestamp(getDocumentPointer().getDate((s)).getTime());
+            return new Timestamp(getDocumentPointer().getDate(getQualComName(s)).getTime());
 
         return new Timestamp(getDocumentPointer().getDate(getQualComName(s)).getTime());
     }

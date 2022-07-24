@@ -1,6 +1,7 @@
 package io.shiveshnavin.firestore.jdbc;
 
 import io.shiveshnavin.firestore.FJLogger;
+import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -33,6 +34,7 @@ public class QueryTest {
     }
 
 
+    @Disabled
     @Test
     public void testCount() throws Exception{
         String sql = "select count(user0_.id) as col_0_0_ from product user0_";
@@ -45,35 +47,36 @@ public class QueryTest {
     }
 
 
-    public static class NPUser{
-        public  String email;
-        public  String id;
-        public  String name;
-        public  String phone;
 
-        @Override
-        public String toString() {
-            return "NPUser{" +
-                    "email='" + email + '\'' +
-                    ", id='" + id + '\'' +
-                    ", name='" + name + '\'' +
-                    ", phone='" + phone + '\'' +
-                    '}';
+    @Disabled
+    @Test
+    public void testGE() throws Exception{
+        String sql = "select (user0_.id) as col_0_0_ from product user0_ where amount >= 100";
+        Statement statement = connection.createStatement();
+        statement.executeQuery(sql);
+        ResultSet resultSet = statement.getResultSet();
+        while (resultSet.next()){
+            System.out.println(resultSet.getString("col_0_0_"));
         }
     }
+
+
+    @Disabled
     @Test
-    public void testFirestoreJDBC_SELECT() throws SQLException {
+    public void testBW() throws Exception{
+        String sql = "select (user0_.id) as col_0_0_ from product user0_ where amount between 190 and 200";
         Statement statement = connection.createStatement();
-        statement.executeQuery("SELECT * FROM npusers WHERE 1");
-        ResultSet resultSet = statement.getResultSet();
-        int resultSize = resultSet.getFetchSize();
+        Assertions.assertThrows(FirestoreJDBCException.class,()->{
+            statement.executeQuery(sql);
+        });
+    }
 
-        assert resultSize > 0;
 
-        while (resultSet.next()){
-            NPUser user = resultSet.unwrap(NPUser.class);
-            FJLogger.debug(user.toString());
-        }
+    @Test
+    public void testDrop() throws Exception{
+        String sql = "Drop TABLE of";
+        Statement statement = connection.createStatement();
+        statement.executeQuery(sql);
 
     }
 
