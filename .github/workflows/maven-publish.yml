@@ -19,13 +19,20 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Check Varz
-      run:  echo ${{ secrets.GPG_PASSPHRASE }} 
+      run:  echo set vars...
+      env:
+        OSS_USERNAME: ${{ secrets.OSS_USERNAME }}
+        OSS_PASSWORD: ${{ secrets.OSS_PASSWORD }}
+        GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
     - name: Check Varz
-      run:  echo ${{ secrets.GPG_SIGNING_KEY }} 
+      run:  echo $OSS_USERNAME
     - name: Check Varz
-      run:  echo ${{ secrets.OSS_USERNAME }} 
+      run:  echo $OSS_PASSWORD
     - name: Check Varz
-      run:  echo ${{ secrets.OSS_PASSWORD }} 
+      run:  echo $GPG_SIGNING_KEY
+    - name: Check Varz
+      run:  echo $GPG_PASSPHRASE
 #     - name: Set up Apache Maven Central
 #       uses: actions/setup-java@v3
 #       with: # running setup-java again overwrites the settings.xml
