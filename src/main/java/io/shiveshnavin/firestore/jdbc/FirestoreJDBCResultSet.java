@@ -18,30 +18,28 @@ import java.util.regex.Pattern;
 
 public class FirestoreJDBCResultSet implements ResultSet {
 
-    private QuerySnapshot queryResult;
     private int index = -1;
     private int size = 0;
-    private List<QueryDocumentSnapshot> queryDocumentSnapshots;
+    private List<QuerySnapshotWrapper> queryDocumentSnapshots;
     Map<String, FirestoreColDefinition> colDefinitionMap;
 
     public FirestoreJDBCResultSet(Map<String, FirestoreColDefinition> aliasToColumnMap) {
         this.colDefinitionMap = aliasToColumnMap;
     }
 
-    public void setQueryResult(QuerySnapshot queryResult) {
+    public void setQueryResult(List<QuerySnapshotWrapper> queryResult) {
 
-        this.queryResult = queryResult;
-        queryDocumentSnapshots = queryResult.getDocuments();
+        queryDocumentSnapshots = queryResult;
         size = queryDocumentSnapshots.size();
         FJLogger.debug("Retrieved " + size + " rows in result set");
     }
 
-    public QuerySnapshot getQueryResult() {
+    public List<QuerySnapshotWrapper> getQueryResult() {
 
-        return queryResult;
+        return queryDocumentSnapshots;
     }
 
-    private QueryDocumentSnapshot getDocumentPointer() {
+    private QuerySnapshotWrapper getDocumentPointer() {
         return queryDocumentSnapshots.get(index);
     }
 
@@ -106,7 +104,12 @@ public class FirestoreJDBCResultSet implements ResultSet {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
         FirestoreColDefinition col = colDefinitionMap.get(s);
         String colname = FirestoreColDefinition.getColNameFromQualified(col.getColumnName());
-        String value = getDocumentPointer().getString(colname);
+        String value;
+        if (getDocumentPointer().contains(colname)) {
+            value = getDocumentPointer().getString(colname);
+        } else {
+            value = getDocumentPointer().getString(s);
+        }
         return value;
     }
 
@@ -115,6 +118,9 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public boolean getBoolean(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
+        if (!getDocumentPointer().contains(getQualComName(s)) && !getDocumentPointer().contains(s)) return false;
+        if (getDocumentPointer().contains(s))
+            return getDocumentPointer().getBoolean(s);
         return getDocumentPointer().getBoolean(getQualComName(s));
     }
 
@@ -123,6 +129,10 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public byte getByte(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
+        if (!getDocumentPointer().contains(getQualComName(s)) && !getDocumentPointer().contains(s)) return 0;
+        if (getDocumentPointer().contains(s))
+            return getDocumentPointer().getBlob(s).toBytes()[0];
+
         return getDocumentPointer().getBlob(getQualComName(s)).toBytes()[0];
     }
 
@@ -130,7 +140,9 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public short getShort(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
-
+        if (!getDocumentPointer().contains(getQualComName(s)) && !getDocumentPointer().contains(s)) return 0;
+        if (getDocumentPointer().contains(s))
+            return (short) getDocumentPointer().getLong(s).intValue();
         return (short) getDocumentPointer().getLong(getQualComName(s)).intValue();
     }
 
@@ -138,6 +150,10 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public int getInt(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
+
+        if (!getDocumentPointer().contains(getQualComName(s)) && !getDocumentPointer().contains(s)) return 0;
+        if (getDocumentPointer().contains(s))
+            return getDocumentPointer().getLong(s).intValue();
 
         return getDocumentPointer().getLong(getQualComName(s)).intValue();
     }
@@ -147,6 +163,10 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public long getLong(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
+        if (!getDocumentPointer().contains(getQualComName(s)) && !getDocumentPointer().contains(s)) return 0;
+        if (getDocumentPointer().contains(s))
+            return getDocumentPointer().getLong(s);
+
         return getDocumentPointer().getLong(getQualComName(s));
     }
 
@@ -155,6 +175,10 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public float getFloat(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
+        if (!getDocumentPointer().contains(getQualComName(s)) && !getDocumentPointer().contains(s)) return 0;
+        if (getDocumentPointer().contains(s))
+            return getDocumentPointer().getDouble(s).floatValue();
+
         return getDocumentPointer().getDouble(getQualComName(s)).floatValue();
     }
 
@@ -162,6 +186,10 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public double getDouble(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
+
+        if (!getDocumentPointer().contains(getQualComName(s)) && !getDocumentPointer().contains(s)) return 0;
+        if (getDocumentPointer().contains(s))
+            return getDocumentPointer().getDouble(s);
 
         return getDocumentPointer().getDouble(getQualComName(s));
     }
@@ -179,6 +207,9 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public byte[] getBytes(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
 
+        if (!getDocumentPointer().contains(getQualComName(s)) && !getDocumentPointer().contains(s)) return null;
+        if (getDocumentPointer().contains(s))
+            return getDocumentPointer().getBlob(s).toBytes();
         return getDocumentPointer().getBlob(getQualComName(s)).toBytes();
     }
 
@@ -186,6 +217,8 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public Date getDate(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        if (getDocumentPointer().contains(s))
+            return new Date(getDocumentPointer().getDate(s).getTime());
 
         return new Date(getDocumentPointer().getDate(getQualComName(s)).getTime());
     }
@@ -194,6 +227,8 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public Time getTime(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        if (getDocumentPointer().contains(s))
+            return new Time(getDocumentPointer().getDate((s)).getTime());
 
         return new Time(getDocumentPointer().getDate(getQualComName(s)).getTime());
     }
@@ -202,6 +237,8 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public Timestamp getTimestamp(String s) throws SQLException {
         givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        if (getDocumentPointer().contains(s))
+            return new Timestamp(getDocumentPointer().getDate((s)).getTime());
 
         return new Timestamp(getDocumentPointer().getDate(getQualComName(s)).getTime());
     }

@@ -33,6 +33,18 @@ public class QueryTest {
     }
 
 
+    @Test
+    public void testCount() throws Exception{
+        String sql = "select count(user0_.id) as col_0_0_ from product user0_";
+        Statement statement = connection.createStatement();
+        statement.executeQuery(sql);
+        ResultSet resultSet = statement.getResultSet();
+        while (resultSet.next()){
+            System.out.println(resultSet.getInt("col_0_0_"));
+        }
+    }
+
+
     public static class NPUser{
         public  String email;
         public  String id;

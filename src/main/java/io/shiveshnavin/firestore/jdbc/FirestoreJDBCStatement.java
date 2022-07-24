@@ -1,10 +1,7 @@
 package io.shiveshnavin.firestore.jdbc;
 
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.Query;
-import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.*;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import io.shiveshnavin.firestore.FJLogger;
@@ -32,15 +29,18 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Blob;
+import java.sql.Date;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 
 public class FirestoreJDBCStatement implements java.sql.Statement, PreparedStatement {
 
     private Firestore db;
+
     private Statement parsedQuery;
     private QueryType queryType;
     private String tableName;
@@ -52,6 +52,10 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     private Map<String, FirestoreColDefinition> aliasToColumnMap;
     private Query conditionalQuery;
+
+    private long limit = 0;
+    private long offset = 0;
+    private boolean isCountQuery = false;
 
     private enum QueryType {
         CREATE, INSERT, SELECT, UPDATE, DELETE, DROP
@@ -104,9 +108,28 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         }
     }
 
+    private void checkIsCount() {
+        List<SelectItem> projection = (((PlainSelect) ((Select) parsedQuery).getSelectBody()).getSelectItems());
+        isCountQuery = projection.stream().anyMatch(item -> {
+            var exp = ((SelectExpressionItem) item).getExpression();
+            return exp == null;
+        });
+    }
+
     private void parseSelect() {
         Select stmt = (Select) parsedQuery;
         aliasToColumnMap = new HashMap<>();
+        Limit limits = (((PlainSelect) ((Select) parsedQuery).getSelectBody()).getLimit());
+        if (limits != null) {
+            if (limits.getRowCount() instanceof LongValue) {
+                limit = ((LongValue) limits.getOffset()).getValue();
+            }
+            if (limits.getOffset() instanceof LongValue) {
+                offset = ((LongValue) limits.getOffset()).getValue();
+            }
+//            limit = limits.getRowCount();
+//            offset = limits.getOffset();
+        }
 
         AtomicInteger integer = new AtomicInteger(0);
         for (SelectItem selectItem : ((PlainSelect) stmt.getSelectBody()).getSelectItems()) {
@@ -116,10 +139,19 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                     Expression expr = item.getExpression();
                     Alias alias = item.getAlias();
 
+                    if (item.getExpression() instanceof Function) {
+                        String funcName = ((Function) item.getExpression()).getName();
+                        if (funcName.equals("count")) {
+                            isCountQuery = true;
+                        } else {
+                            throw new FirestoreJDBCException("Function " + funcName + " not supported");
+                        }
+                    }
                     aliasToColumnMap.put(alias.getName(), new FirestoreColDefinition(integer.getAndAdd(1), expr.toString(), FirestoreColType.STRING));
                 }
             });
         }
+
     }
 
     /**
@@ -137,7 +169,8 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     private void parseWhere(Expression statement) {
         CollectionReference collRef = db.collection(tableName);
         Query query = collRef;
-        query = scanWhere(statement, query);
+        if (statement != null)
+            query = scanWhere(statement, query);
         setConditionalQuery(query);
     }
 
@@ -165,7 +198,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 value = (((DoubleValue) exp.getRightExpression()).getValue());
             } else if (exp.getRightExpression() instanceof net.sf.jsqlparser.expression.DateValue) {
                 value = ((DateValue) exp.getRightExpression()).getValue();
-            }else if (exp.getRightExpression() instanceof net.sf.jsqlparser.expression.LongValue) {
+            } else if (exp.getRightExpression() instanceof net.sf.jsqlparser.expression.LongValue) {
                 value = ((LongValue) exp.getRightExpression()).getValue();
             }
 
@@ -176,15 +209,15 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             } else if (cur instanceof GreaterThanEquals) {
                 query = query.whereGreaterThanOrEqualTo(colName, value);
             } else if (cur instanceof MinorThan) {
-                query = query.whereGreaterThanOrEqualTo(colName, value);
+                query = query.whereLessThan(colName, value);
             } else if (cur instanceof MinorThanEquals) {
-                query = query.whereGreaterThanOrEqualTo(colName, value);
+                query = query.whereLessThanOrEqualTo(colName, value);
             } else if (cur instanceof NotEqualsTo) {
-                query = query.whereGreaterThanOrEqualTo(colName, value);
+                query = query.whereNotEqualTo(colName, value);
             } else if (cur instanceof InExpression) {
-                query = query.whereGreaterThanOrEqualTo(colName, value);
+                query = query.whereIn(colName, (List<? extends Object>) value);
             } else if (cur instanceof IsNullExpression) {
-                query = query.whereGreaterThanOrEqualTo(colName, value);
+                query = query.whereEqualTo(colName, null);
             } else if (cur instanceof Between) {
                 query = query.whereGreaterThanOrEqualTo(colName, value);
             } else {
@@ -197,12 +230,28 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     private ResultSet performSelectQuery() {
         Query query = getConditionalQuery();
+        if (limit > 0) {
+            query = query.limit((int) limit);
+        }
+        if (offset > 0) {
+            query = query.offset((int) offset);
+        }
 
         ApiFuture<QuerySnapshot> queryFuture = query.get();
         try {
             QuerySnapshot querySnapshot = queryFuture.get();
             firestoreJDBCResultSet = new FirestoreJDBCResultSet(aliasToColumnMap);
-            firestoreJDBCResultSet.setQueryResult(querySnapshot);
+            if (isCountQuery) {
+                HashMap<String, Object> data = new HashMap<>();
+                data.put("id", "count");
+                aliasToColumnMap.keySet().forEach(key -> {
+                    data.put(key, querySnapshot.size());
+                });
+                firestoreJDBCResultSet.setQueryResult(List.of(new QuerySnapshotWrapper(null, data)));
+            } else {
+                firestoreJDBCResultSet.setQueryResult(querySnapshot.getDocuments().stream()
+                        .map(doc -> new QuerySnapshotWrapper(doc, doc.getData())).collect(Collectors.toList()));
+            }
             return firestoreJDBCResultSet;
         } catch (Exception e) {
             throw new FirestoreJDBCException(e);
