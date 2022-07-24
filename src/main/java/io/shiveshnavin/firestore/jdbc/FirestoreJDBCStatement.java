@@ -736,6 +736,12 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         }
     }
 
+    public int performDrop() {
+        Query query = db.collection(tableName);
+        setConditionalQuery(query);
+        return performDelete();
+    }
+
     public static String randomUUID(int l) {
         final String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         return uuid.substring(0, Math.min(uuid.length(), l));
@@ -751,9 +757,15 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             return performUpdateQuery();
         } else if (queryType == QueryType.DELETE) {
             return performDelete();
+        } else if (queryType == QueryType.CREATE) {
+            FJLogger.debug("CREATE operation not required for firestore. Collections are created on inserting document automatically.");
+            return 1;
+        } else if (queryType == QueryType.DROP) {
+            return performDrop();
+        } else {
+            throw new FirestoreJDBCException("Unsupported operation.");
         }
 
-        return 0;
     }
 
     @Override
