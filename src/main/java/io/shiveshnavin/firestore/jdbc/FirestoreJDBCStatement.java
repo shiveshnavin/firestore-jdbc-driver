@@ -5,7 +5,6 @@ import com.google.cloud.firestore.*;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import io.shiveshnavin.firestore.FJLogger;
-import io.shiveshnavin.firestore.aspect.LoggingOperation;
 import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
 import io.shiveshnavin.firestore.jdbc.metadata.FirestoreColType;
@@ -270,7 +269,6 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         }
     }
 
-    @LoggingOperation
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
         query = sql;
