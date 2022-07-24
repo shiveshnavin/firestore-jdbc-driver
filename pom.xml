@@ -14,6 +14,13 @@
         <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
+      <configuration>
+              <!-- Prevent gpg from using pinentry programs -->
+              <gpgArguments>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+        </configuration>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>A JDBC driver to convert JPA SQL queries to firestore queries and provide support for firestore db.</description>
