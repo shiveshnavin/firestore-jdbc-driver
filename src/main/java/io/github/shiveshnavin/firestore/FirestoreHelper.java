@@ -30,7 +30,7 @@ public class FirestoreHelper {
             init(serviceAccountJson);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new FirestoreJDBCException("Unable to find service account file.");
+            throw new FirestoreJDBCException("Unable to read service account file.");
         }
     }
 
@@ -41,7 +41,7 @@ public class FirestoreHelper {
             init(serviceAccountJson);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new FirestoreJDBCException("Unable to find service account file.");
+            throw new FirestoreJDBCException("Unable to find service account file in path : " + path);
         }
     }
 
