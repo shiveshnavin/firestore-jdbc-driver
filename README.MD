@@ -1,5 +1,5 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Release](https://github.com/shiveshnavin/firestore-jdbc-driver/actions/workflows/maven-publish-release.yml/badge.svg?branch=release)](https://github.com/shiveshnavin/firestore-jdbc-driver/actions/workflows/maven-publish.yml)
+[![Release](https://github.com/shiveshnavin/firestore-jdbc-driver/actions/workflows/maven-publish-release.yml/badge.svg)](https://github.com/shiveshnavin/firestore-jdbc-driver/actions/workflows/maven-publish-release.yml)
 [![Maven Deploy](https://github.com/shiveshnavin/firestore-jdbc-driver/actions/workflows/maven-publish-snapshot.yml/badge.svg?branch=master)](https://github.com/shiveshnavin/firestore-jdbc-driver/actions/workflows/maven-publish-snapshot.yml)
 
 # Firestore JDBC Driver
