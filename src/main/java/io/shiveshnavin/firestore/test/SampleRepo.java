@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface SampleRepo extends JpaRepository<User,String> {
+public interface SampleRepo extends JpaRepository<Product,Long> {
 
-    List<User> findByNameAndUserseq(String name, int userSeq);
+    List<Product> findBypIDAndAmount(String name, int userSeq);
 
 }

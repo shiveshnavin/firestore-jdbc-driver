@@ -18,14 +18,25 @@ class SampleRepoTest {
     @Disabled
     @Test
     void testSelectWhere() {
-        List<User> all = repo.findByNameAndUserseq("shivesh navin",5);
+        List<Product> all = repo.findBypIDAndAmount("4yyqaWziix",100);
+        System.out.println(all);
+    }
+
+    @Disabled
+    @Test
+    void limitTest(){
+        List<Product> all =  repo.findAll(PageRequest.of(1,1)).toList();
+//        List<User> all = repo.findByNameAndUserseq("shivesh navin",5, PageRequest.of(1,1));
         System.out.println(all);
     }
 
     @Test
-    void limitTest(){
-        List<User> all =  repo.findAll(PageRequest.of(1,1)).toList();
-//        List<User> all = repo.findByNameAndUserseq("shivesh navin",5, PageRequest.of(1,1));
-        System.out.println(all);
+    void createTest() {
+        Product product = new Product();
+        product.pID="abcd";
+        product.status="ok";
+        product.amount=192;
+        product.timeStamp=System.currentTimeMillis();
+        repo.save(product);
     }
 }

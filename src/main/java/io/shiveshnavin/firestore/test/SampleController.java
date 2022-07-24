@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 
@@ -17,16 +16,16 @@ public class SampleController {
 
     @LoggingOperation
     @RequestMapping
-    public List<User> home(){
+    public List<Product> home(){
 
 
-        List<User> all = repo.findAllById(List.of("TlT9KtH5Yt"));
+        List<Product> all = repo.findAllById(List.of(1615017569716l));
         return all;
     }
 
 //    @PostConstruct
     public void test(){
-        List<User> all = repo.findByNameAndUserseq("abcde",0);
+        List<Product> all = repo.findBypIDAndAmount("abcde",0);
         System.out.println(all);
     }
 }

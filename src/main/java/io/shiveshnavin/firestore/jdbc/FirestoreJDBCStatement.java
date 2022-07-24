@@ -25,6 +25,8 @@ import net.sf.jsqlparser.statement.update.Update;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -33,6 +35,7 @@ import java.sql.Blob;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -106,14 +109,6 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         } catch (JSQLParserException e) {
             throw new FirestoreJDBCException(e);
         }
-    }
-
-    private void checkIsCount() {
-        List<SelectItem> projection = (((PlainSelect) ((Select) parsedQuery).getSelectBody()).getSelectItems());
-        isCountQuery = projection.stream().anyMatch(item -> {
-            var exp = ((SelectExpressionItem) item).getExpression();
-            return exp == null;
-        });
     }
 
     private void parseSelect() {
@@ -586,14 +581,6 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     ////////////////// PREPARED STATEMENT
 
-    private int ordinalIndexOf(String str, String substr, int n) {
-        int pos = str.indexOf(substr);
-        while (--n > 0 && pos != -1)
-            pos = str.indexOf(substr, pos + 1);
-        return pos;
-    }
-
-
     private void insertParameter(String s, int pos, String c) {
 
         query = s.substring(0, pos) + c + s.substring(pos + 1);
@@ -611,9 +598,60 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         return executeQuery(query);
     }
 
+    private int performInsertQuery() throws FirestoreJDBCException {
+        Insert insert = (Insert) parsedQuery;
+        List<Column> cols = insert.getColumns();
+        List<Expression> values = ((ExpressionList) insert.getItemsList()).getExpressions();
+        values.get(0).getASTNode().jjtGetValue();
+        Map<String, Object> data = new HashMap<>();
+        for (int i = 0; i < values.size(); i++) {
+            Expression exp = values.get(i);
+            Object value = "";
+            if (exp instanceof Column) {
+                value = ((Column) exp).getColumnName();
+            } else if (exp instanceof StringValue) {
+                value = ((StringValue) exp).getValue();
+            } else if (exp instanceof net.sf.jsqlparser.expression.DoubleValue) {
+                value = (((DoubleValue) exp).getValue());
+            } else if (exp instanceof net.sf.jsqlparser.expression.DateValue) {
+                value = ((DateValue) exp).getValue();
+            } else if (exp instanceof net.sf.jsqlparser.expression.LongValue) {
+                value = ((LongValue) exp).getValue();
+            }
+            data.put(cols.get(i).getColumnName(), value);
+
+        }
+        Object __id = randomUUID(10);
+        if (data.containsKey("id") || data.containsKey("ID")) {
+            __id = data.containsKey("id") ? data.get("id") : data.get("ID");
+        }
+
+        ApiFuture<WriteResult> future = db.collection(tableName).document(__id.toString()).set(data);
+
+        try {
+            future.get();
+        } catch (Exception e) {
+            throw new FirestoreJDBCException(e);
+        }
+        return 1;
+    }
+
+    public static String randomUUID(int l) {
+        final String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        return uuid.substring(0, Math.min(uuid.length(), l));
+    }
+
     @Override
     public int executeUpdate() throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
+        parseQuery();
+        if (queryType == QueryType.INSERT) {
+            return performInsertQuery();
+        } else if (queryType == QueryType.UPDATE) {
+
+        } else if (queryType == QueryType.DELETE) {
+
+        }
 
         return 0;
     }
@@ -692,7 +730,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setString(int i, String s) throws SQLException {
         FirestoreJDBCResultSet.givenCurrentThread_whenGetStackTrace_thenFindMethod();
-        insertParameter(query, ordinalIndexOf(query, "?", i), "'" + s + "'");
+        insertParameter(query, paramPositionMap.get(i), "'" + s + "'");
     }
 
     @Override
