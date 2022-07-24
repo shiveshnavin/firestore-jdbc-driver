@@ -16,6 +16,7 @@ https://firebase.google.com/docs/firestore/manage-data/add-data
 
 ## Usage
 1. Download the firebase service account file for your project
+   https://firebase.google.com/docs/admin/setup
 2. Add these to `application.properties`
 ```properties
 spring.datasource.url=test-a0930.json
