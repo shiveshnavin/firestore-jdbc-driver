@@ -7,7 +7,6 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
@@ -52,9 +51,12 @@ public class FirestoreHelper {
         JsonObject serviceAccount = jsonParser.parse(serviceAccountJson).getAsJsonObject();
         String projectId = serviceAccount.get("project_id").getAsString();
 
-        if (FirebaseApp.getApps().stream().anyMatch(app-> app.getName().equals(projectId))) {
+        if (FirebaseApp.getApps().stream().anyMatch(app -> app.getName().equals(projectId))) {
             if (!firebaseApps.containsKey(projectId)) {
                 firebaseApps.put(projectId, FirebaseApp.getInstance(projectId));
+            }
+            if (defaultDatabase == null) {
+                defaultDatabase = FirestoreClient.getFirestore(FirebaseApp.getInstance(projectId));
             }
             return FirebaseApp.getInstance(projectId);
         }
@@ -68,8 +70,9 @@ public class FirestoreHelper {
             FirebaseApp firebaseApp = FirebaseApp.initializeApp(options, projectId);
 
             Firestore db = FirestoreClient.getFirestore(firebaseApp);
-            if (defaultDatabase == null)
+            if (defaultDatabase == null) {
                 defaultDatabase = db;
+            }
             firebaseApps.put(projectId, firebaseApp);
             return firebaseApp;
 

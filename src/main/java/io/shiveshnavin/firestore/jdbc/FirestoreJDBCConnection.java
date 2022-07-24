@@ -1,7 +1,6 @@
 package io.shiveshnavin.firestore.jdbc;
 
 import com.google.cloud.firestore.Firestore;
-import com.google.firebase.database.FirebaseDatabase;
 import io.shiveshnavin.firestore.FirestoreHelper;
 
 import java.sql.*;
@@ -11,22 +10,40 @@ import java.util.concurrent.Executor;
 
 public class FirestoreJDBCConnection implements Connection {
 
-    private FirestoreHelper connManager;
-    private Firestore firebaseDatabase;
+
+    private Firestore firestore;
+    private String serviceAccountFilePath ;
 
     public FirestoreJDBCConnection(String serviceAccountFilePath) {
-        connManager = new FirestoreHelper(serviceAccountFilePath);
-        firebaseDatabase = connManager.getDefaultDatabase();
+        this.serviceAccountFilePath = serviceAccountFilePath;
+        FirestoreHelper connManager = new FirestoreHelper(serviceAccountFilePath);
+        firestore = connManager.getDefaultDatabase();
+    }
+
+
+
+    public Firestore getFirestore() {
+        if(firestore == null){
+            FirestoreHelper connManager = new FirestoreHelper(serviceAccountFilePath);
+            firestore = connManager.getDefaultDatabase();
+        }
+        return firestore;
+    }
+
+    public void setFirestore(Firestore firestore) {
+        this.firestore = firestore;
     }
 
     @Override
     public Statement createStatement() throws SQLException {
-        return new FirestoreJDBCStatement(firebaseDatabase);
+        return new FirestoreJDBCStatement(getFirestore());
     }
 
     @Override
     public PreparedStatement prepareStatement(String s) throws SQLException {
-        return null;
+        FirestoreJDBCStatement statement = new FirestoreJDBCStatement(getFirestore());
+        statement.setQuery(s);
+        return statement;
     }
 
     @Override
@@ -71,7 +88,7 @@ public class FirestoreJDBCConnection implements Connection {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        return null;
+        return new FirestoreJDBCMetadata(this);
     }
 
     @Override

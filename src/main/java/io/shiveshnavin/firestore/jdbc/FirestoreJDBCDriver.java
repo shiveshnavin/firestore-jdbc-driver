@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 public class FirestoreJDBCDriver implements Driver {
 
 
+    public static final int VERSION = 1;
+
     @Override
     public Connection connect(String serviceAccountFilePath, Properties properties) {
         FirestoreJDBCConnection connection = new FirestoreJDBCConnection(serviceAccountFilePath);

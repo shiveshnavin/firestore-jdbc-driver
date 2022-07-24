@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestHelper {
 
-    public static Connection getConnection() throws RuntimeException{
+    public static FirestoreJDBCConnection getConnection() throws RuntimeException{
         try {
             DriverManager.registerDriver(new FirestoreJDBCDriver());
             String serviceAccountJsonPath = FirestoreHelper.class.getClassLoader().getResource("keys/test-a0930.json").getFile();
-            Connection con= DriverManager.getConnection(serviceAccountJsonPath);
+            FirestoreJDBCConnection con= (FirestoreJDBCConnection) DriverManager.getConnection(serviceAccountJsonPath);
             return con;
         } catch (Exception e) {
             e.printStackTrace();
