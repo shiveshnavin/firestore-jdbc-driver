@@ -104,7 +104,10 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 }
             }
 
-            FJLogger.debug("QueryInfo: " + queryType.name() + " from table : " + tableName);
+            FJLogger.debug("QueryInfo: " + queryType.name() + " from table : " + tableName + " " + (query.contains("?") ? "(Prefilled Query)" : "(Fully filled query)"));
+            if (!(query.contains("?"))) {
+                FJLogger.debug(query);
+            }
             return tableName;
         } catch (JSQLParserException e) {
             throw new FirestoreJDBCException(e);
@@ -636,6 +639,32 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         return 1;
     }
 
+    public int performDelete() {
+        Query itemsQuery = getConditionalQuery();
+        ApiFuture<QuerySnapshot> snapshot = itemsQuery.get();
+        try {
+            QuerySnapshot toDelete = snapshot.get();
+            List<QueryDocumentSnapshot> dbList = toDelete.getDocuments();
+
+            for (int i = 0; i < dbList.size(); i += 500) {
+                List<QueryDocumentSnapshot> sub = dbList.subList(i, Math.min(dbList.size(), i + 500));
+                WriteBatch batch = db.batch();
+
+                sub.forEach(doc -> {
+                    batch.delete(doc.getReference());
+                });
+
+                ApiFuture<List<WriteResult>> future = batch.commit();
+                future.get();
+
+            }
+
+            return toDelete.size();
+        } catch (Exception e) {
+            throw new FirestoreJDBCException(e);
+        }
+    }
+
     public static String randomUUID(int l) {
         final String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         return uuid.substring(0, Math.min(uuid.length(), l));
@@ -650,7 +679,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         } else if (queryType == QueryType.UPDATE) {
 
         } else if (queryType == QueryType.DELETE) {
-
+            return performDelete();
         }
 
         return 0;

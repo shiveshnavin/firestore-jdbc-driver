@@ -30,6 +30,7 @@ class SampleRepoTest {
         System.out.println(all);
     }
 
+    @Disabled
     @Test
     void createTest() {
         Product product = new Product();
@@ -38,5 +39,11 @@ class SampleRepoTest {
         product.amount=192;
         product.timeStamp=System.currentTimeMillis();
         repo.save(product);
+    }
+
+    @Test
+    void deleteTest() {
+
+        repo.deleteById(1658666411884l);
     }
 }

@@ -70,10 +70,17 @@ public class QuerySnapshotWrapper {
 
     @Nullable
     public Boolean getBoolean(@Nonnull String field) {
-        if (snapshot != null)
-            return snapshot.getBoolean(field);
-        else
+        if(snapshot!=null){
+            if(snapshot.get(field) instanceof Boolean){
+                return snapshot.getBoolean(field);
+            }
+            else {
+               return Boolean.valueOf(snapshot.get(field).toString());
+            }
+        }
+        else {
             return Boolean.valueOf(getString(field));
+        }
 
     }
 
