@@ -620,7 +620,6 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         Insert insert = (Insert) parsedQuery;
         List<Column> cols = insert.getColumns();
         List<Expression> values = ((ExpressionList) insert.getItemsList()).getExpressions();
-        values.get(0).getASTNode().jjtGetValue();
         Map<String, Object> data = new HashMap<>();
         for (int i = 0; i < values.size(); i++) {
             Expression exp = values.get(i);
@@ -769,7 +768,29 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setNull(int i, int i1) throws SQLException {
         FirestoreJDBCResultSet.printCurrentMethod();
-        insertParameter(query, paramPositionMap.get(i), "" + i1);
+        switch (i1){
+            case Types.VARCHAR:
+            case Types.CHAR:
+            case Types.JAVA_OBJECT:
+            case Types.NVARCHAR:
+            case Types.NCHAR:
+            case Types.BLOB:
+            case Types.NULL:
+            case Types.LONGNVARCHAR:
+            case Types.NCLOB:
+            case Types.OTHER:
+            case Types.REF:
+            case Types.TIME_WITH_TIMEZONE:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIMESTAMP:
+            case Types.DATE:
+            case Types.TIME:
+                insertParameter(query, paramPositionMap.get(i), "NULL");
+                break;
+            default:
+                insertParameter(query, paramPositionMap.get(i), "0");
+        }
+
 
 
     }
