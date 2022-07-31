@@ -1,16 +1,13 @@
 //package io.shiveshnavin.firestore.jdbc;
 //
-//import FJLogger;
-//import FirestoreJDBCException;
+//import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
+//import io.github.shiveshnavin.firestore.jdbc.TestHelper;
 //import org.junit.jupiter.api.Assertions;
 //import org.junit.jupiter.api.BeforeAll;
 //import org.junit.jupiter.api.Disabled;
 //import org.junit.jupiter.api.Test;
 //
-//import java.sql.Connection;
-//import java.sql.ResultSet;
-//import java.sql.SQLException;
-//import java.sql.Statement;
+//import java.sql.*;
 //
 //@Disabled
 //public class QueryTest {
@@ -21,9 +18,32 @@
 //    public static void setupClass(){
 //        try {
 //            connection = TestHelper.getConnection();
-//        } catch (RuntimeException e) {
+//        } catch (Exception e) {
 //
 //        }
+//    }
+//
+//    @Test
+//    public void testNullInsert() throws Exception{
+//        if(connection == null)
+//            return;
+//        String sql = "INSERT INTO sample (id,name,marks) values (?,?,?)";
+//        PreparedStatement statement = connection.prepareStatement(sql);
+//        statement.setInt(1,1234234);
+//        statement.setNull(2, Types.VARCHAR);
+//        statement.setNull(3,Types.NUMERIC);
+//        statement.executeUpdate();
+//
+//        statement = connection.prepareStatement("SELECT * FROM sample WHERE id = 1234234");
+//        statement.executeQuery();
+//        ResultSet resultSet = statement.getResultSet();
+//        while (resultSet.next()){
+//            System.out.println(resultSet.getString("id")
+//                    + " : " + resultSet.getString("name")
+//                    + " : " + resultSet.getString("marks")
+//            );
+//        }
+//
 //    }
 //
 ////    @Test

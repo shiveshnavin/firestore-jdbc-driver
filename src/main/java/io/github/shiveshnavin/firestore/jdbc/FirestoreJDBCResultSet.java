@@ -1,16 +1,17 @@
 package io.github.shiveshnavin.firestore.jdbc;
 
 import io.github.shiveshnavin.firestore.FJLogger;
+import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
+import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColType;
 
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
+import java.sql.Date;
+import java.util.*;
 
 public class FirestoreJDBCResultSet implements ResultSet {
 
@@ -27,6 +28,22 @@ public class FirestoreJDBCResultSet implements ResultSet {
 
         queryDocumentSnapshots = queryResult;
         size = queryDocumentSnapshots.size();
+        if (size > 0 && colDefinitionMap.isEmpty()) {
+
+            QuerySnapshotWrapper sample = queryDocumentSnapshots.get(0);
+            Set<String> keys = new HashSet<>();
+            if (sample.getSnapshot() != null) {
+                keys = sample.getSnapshot().getData().keySet();
+            } else if (sample.getData() != null) {
+                keys = sample.getData().keySet();
+            }
+            if (colDefinitionMap.isEmpty()) {
+                int i = 0;
+                for (String key : keys) {
+                    colDefinitionMap.put(key, new FirestoreColDefinition(i++, key, FirestoreColType.UNKNOWN));
+                }
+            }
+        }
         FJLogger.debug("Retrieved " + size + " rows in result set");
     }
 
@@ -55,7 +72,6 @@ public class FirestoreJDBCResultSet implements ResultSet {
                 "[" + stackTrace[2].getLineNumber() + "] - " + stackTrace[2].getMethodName() + "()");
 
     }
-
 
 
     @Override
@@ -240,6 +256,9 @@ public class FirestoreJDBCResultSet implements ResultSet {
     }
 
     private String getColNameFromIndex(int idx) {
+        if (colDefinitionMap.isEmpty()) {
+            throw new FirestoreJDBCException("Retrieving columns by index not supported at present.");
+        }
         return colDefinitionMap.entrySet().stream().
                 filter(e -> e.getValue().getIndex() == idx).
                 findAny().get().getValue().getColumnName();
@@ -348,7 +367,6 @@ public class FirestoreJDBCResultSet implements ResultSet {
 
         return getTimestamp(getColNameFromIndex(i));
     }
-
 
 
     @Override

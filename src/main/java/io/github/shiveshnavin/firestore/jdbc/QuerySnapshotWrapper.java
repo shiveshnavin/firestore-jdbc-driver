@@ -8,19 +8,26 @@ import com.google.gson.Gson;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.sql.Time;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
 public class QuerySnapshotWrapper {
 
-    private QueryDocumentSnapshot snapshot;
-    private Map<String, Object> data;
+
+    private final QueryDocumentSnapshot snapshot;
+    private final Map<String, Object> data;
 
     public QuerySnapshotWrapper(QueryDocumentSnapshot snapshot, Map<String, Object> data) {
         this.snapshot = snapshot;
         this.data = data;
+    }
+
+    public QueryDocumentSnapshot getSnapshot() {
+        return snapshot;
+    }
+
+    public Map<String, Object> getData() {
+        return data;
     }
 
     @Nonnull
@@ -87,7 +94,7 @@ public class QuerySnapshotWrapper {
     @Nullable
     public Double getDouble(@Nonnull String field) {
         if (snapshot != null)
-            return snapshot.getDouble(field);
+            return Double.parseDouble(String.valueOf(snapshot.get(field)));
         else
             return Double.valueOf(getString(field));
 
@@ -96,7 +103,7 @@ public class QuerySnapshotWrapper {
     @Nullable
     public String getString(@Nonnull String field) {
         if (snapshot != null)
-            return snapshot.getString(field);
+            return String.valueOf(snapshot.get(field));
         else
             return String.valueOf(data.get(field));
 
@@ -105,7 +112,7 @@ public class QuerySnapshotWrapper {
     @Nullable
     public Long getLong(@Nonnull String field) {
         if (snapshot != null)
-            return snapshot.getLong(field);
+            return Long.parseLong(String.valueOf(snapshot.get(field)));
         else
             return Long.valueOf(data.get(field).toString());
 
