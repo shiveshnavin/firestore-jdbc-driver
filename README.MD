@@ -57,7 +57,7 @@ public class Config {
       factory.setJpaProperties(props);
       factory.setJpaVendorAdapter(vendorAdapter);
       
-      // Add the packages containing your model POJO classes
+      // [Optional] In case you are using JPA , Add the packages containing your model POJO classes
       factory.setPackagesToScan(new String[]{"com.example.domain.model"});
 
       factory.setDataSource(dataSource);
@@ -65,7 +65,7 @@ public class Config {
    } 
 }
 ```
-4. In all your Entity classes make sure to specify `@Table` and table name (case sensitive). Basically this is the collection name. If you skip explicitly adding the `name` then the collection name will be defined by JPA.
+4.  [Optional] In case you are using JPA , In all your Entity classes make sure to specify `@Table` and table name (case sensitive). Basically this is the collection name. If you skip explicitly adding the `name` then the collection name will be defined by JPA.
 ```java
 @Entity
 @Table(name="users")
