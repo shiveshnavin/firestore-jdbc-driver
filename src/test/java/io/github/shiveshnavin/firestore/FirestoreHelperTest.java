@@ -6,14 +6,20 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
+//@Disabled
 class FirestoreHelperTest {
 
     FirestoreHelper firestoreHelper;
 
     @BeforeEach
     void setUp() {
-        firestoreHelper = new FirestoreHelper(FirestoreHelper.class.getClassLoader().getResourceAsStream("keys/test-a0930.json"));
+//        firestoreHelper = new FirestoreHelper(FirestoreHelper.class.getClassLoader().getResourceAsStream("keys/test-a0930.json"));
+    }
+
+
+    @Test
+    public void checkPathIns(){
+        firestoreHelper = new FirestoreHelper("keys/test-a0930.json");
     }
 
     @Test
