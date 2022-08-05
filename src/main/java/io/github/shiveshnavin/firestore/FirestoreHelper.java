@@ -11,10 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +33,13 @@ public class FirestoreHelper {
 
     public FirestoreHelper(String path) {
         try {
-            InputStream resourceAsStream = new FileInputStream(path);
+            File f = new File(path);
+            InputStream resourceAsStream;
+            if (f.exists()) {
+                resourceAsStream = new FileInputStream(path);
+            } else {
+                resourceAsStream = getClass().getClassLoader().getResourceAsStream(path);
+            }
             String serviceAccountJson = StringUtils.newStringUtf8(resourceAsStream.readAllBytes());
             init(serviceAccountJson);
         } catch (IOException e) {
