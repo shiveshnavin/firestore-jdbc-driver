@@ -658,7 +658,6 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         Update update = (Update) parsedQuery;
         List<Column> cols = update.getColumns();
         List<Expression> values = update.getExpressions();
-        values.get(0).getASTNode().jjtGetValue();
         Map<String, Object> data = new HashMap<>();
         for (int i = 0; i < values.size(); i++) {
             Expression exp = values.get(i);
