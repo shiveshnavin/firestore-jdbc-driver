@@ -77,6 +77,6 @@ public class User{
 ```
 
 
-### Issues
+## Issues
 #### SIGTERM while initializing JPA when using openjdk11
 Try openjdk oracle 11.0.10
