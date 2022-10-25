@@ -38,7 +38,7 @@ Snapshot (Experimental)
 spring.datasource.url=path/to/your/service-account.json
 spring.datasource.driver-class-name=io.github.shiveshnavin.firestore.jdbc.FirestoreJDBCDriver
 ```
-3. Create a `LocalSessionFactoryBean` bean in your `@Configuration` class and replace `com.example.domain.model` with your domain model package
+3. [Only if you are using JPA/Hibernate] Create a `LocalSessionFactoryBean` bean in your `@Configuration` class and replace `com.example.domain.model` with your domain model package
 ```java
 @Configuration
 public class Config {
