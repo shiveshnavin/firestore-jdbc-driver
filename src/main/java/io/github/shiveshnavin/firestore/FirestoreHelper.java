@@ -66,8 +66,10 @@ public class FirestoreHelper {
 
         try {
             FirebaseOptions options = FirebaseOptions.builder()
+                    .setProjectId(projectId)
+                    .setStorageBucket(projectId+".appspot.com")
+                    .setDatabaseUrl("https://"+projectId+"-default-rtdb.firebaseio.com/")
                     .setCredentials(GoogleCredentials.fromStream(new ByteArrayInputStream(serviceAccountJson.getBytes(StandardCharsets.UTF_8))))
-                    .setDatabaseUrl("https://" + projectId + ".firebaseio.com/")
                     .build();
 
             FirebaseApp firebaseApp = FirebaseApp.initializeApp(options, projectId);
