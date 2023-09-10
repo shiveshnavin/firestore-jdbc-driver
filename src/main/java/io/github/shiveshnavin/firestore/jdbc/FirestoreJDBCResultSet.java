@@ -23,12 +23,19 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public FirestoreJDBCResultSet(Map<String, FirestoreColDefinition> aliasToColumnMap) {
         this.colDefinitionMap = aliasToColumnMap;
     }
+    
+    public Map<String, FirestoreColDefinition> getColDefinitionMap(){
+        if(colDefinitionMap == null){
+            colDefinitionMap = new HashMap<>();
+        }
+        return colDefinitionMap;
+    }
 
     public void setQueryResult(List<QuerySnapshotWrapper> queryResult) {
 
         queryDocumentSnapshots = queryResult;
         size = queryDocumentSnapshots.size();
-        if (size > 0 && colDefinitionMap.isEmpty()) {
+        if (size > 0 && getColDefinitionMap().isEmpty()) {
 
             QuerySnapshotWrapper sample = queryDocumentSnapshots.get(0);
             Set<String> keys = new HashSet<>();
@@ -37,10 +44,10 @@ public class FirestoreJDBCResultSet implements ResultSet {
             } else if (sample.getData() != null) {
                 keys = sample.getData().keySet();
             }
-            if (colDefinitionMap.isEmpty()) {
+            if (getColDefinitionMap().isEmpty()) {
                 int i = 0;
                 for (String key : keys) {
-                    colDefinitionMap.put(key, new FirestoreColDefinition(i++, key, FirestoreColType.UNKNOWN));
+                    getColDefinitionMap().put(key, new FirestoreColDefinition(i++, key, FirestoreColType.UNKNOWN));
                 }
             }
         }
@@ -105,7 +112,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     }
 
     private String getQualComName(String alias) {
-        FirestoreColDefinition col = colDefinitionMap.get(alias);
+        FirestoreColDefinition col = getColDefinitionMap().get(alias);
         String colname = FirestoreColDefinition.getColNameFromQualified(col.getColumnName());
         return colname;
     }
@@ -114,7 +121,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public String getString(String s) throws SQLException {
         printCurrentMethod();
-        FirestoreColDefinition col = colDefinitionMap.get(s);
+        FirestoreColDefinition col = getColDefinitionMap().get(s);
         String colname = FirestoreColDefinition.getColNameFromQualified(col.getColumnName());
         String value;
         if (getDocumentPointer().contains(colname)) {
@@ -256,10 +263,10 @@ public class FirestoreJDBCResultSet implements ResultSet {
     }
 
     private String getColNameFromIndex(int idx) {
-        if (colDefinitionMap.isEmpty()) {
+        if (getColDefinitionMap().isEmpty()) {
             throw new FirestoreJDBCException("Retrieving columns by index not supported at present.");
         }
-        return colDefinitionMap.entrySet().stream().
+        return getColDefinitionMap().entrySet().stream().
                 filter(e -> e.getValue().getIndex() == idx).
                 findAny().get().getValue().getColumnName();
     }
