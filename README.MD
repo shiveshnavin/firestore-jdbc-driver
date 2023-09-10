@@ -26,7 +26,7 @@ Snapshot (Experimental)
 <dependency>
    <groupId>io.github.shiveshnavin</groupId>
    <artifactId>firestore-jdbc</artifactId>
-   <version>1.0.7-SNAPSHOT</version>
+   <version>1.2.0-SNAPSHOT</version>
 </dependency>
 ```
 ## Usage
