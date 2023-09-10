@@ -4,7 +4,9 @@ import io.github.shiveshnavin.firestore.FJLogger;
 import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
 import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColType;
+import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreResultSetMetaData;
 
+import javax.sql.rowset.RowSetMetaDataImpl;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -18,16 +20,15 @@ public class FirestoreJDBCResultSet implements ResultSet {
     private int index = -1;
     private int size = 0;
     private List<QuerySnapshotWrapper> queryDocumentSnapshots;
-    Map<String, FirestoreColDefinition> colDefinitionMap;
+    private final Map<String, FirestoreColDefinition> colDefinitionMap;
 
     public FirestoreJDBCResultSet(Map<String, FirestoreColDefinition> aliasToColumnMap) {
+        if (aliasToColumnMap == null)
+            aliasToColumnMap = new LinkedHashMap<>();
         this.colDefinitionMap = aliasToColumnMap;
     }
-    
-    public Map<String, FirestoreColDefinition> getColDefinitionMap(){
-        if(colDefinitionMap == null){
-            colDefinitionMap = new HashMap<>();
-        }
+
+    public Map<String, FirestoreColDefinition> getColDefinitionMap() {
         return colDefinitionMap;
     }
 
@@ -35,7 +36,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
 
         queryDocumentSnapshots = queryResult;
         size = queryDocumentSnapshots.size();
-        if (size > 0 && getColDefinitionMap().isEmpty()) {
+        if (size > 0) {
 
             QuerySnapshotWrapper sample = queryDocumentSnapshots.get(0);
             Set<String> keys = new HashSet<>();
@@ -44,11 +45,14 @@ public class FirestoreJDBCResultSet implements ResultSet {
             } else if (sample.getData() != null) {
                 keys = sample.getData().keySet();
             }
-            if (getColDefinitionMap().isEmpty()) {
-                int i = 0;
-                for (String key : keys) {
-                    getColDefinitionMap().put(key, new FirestoreColDefinition(i++, key, FirestoreColType.UNKNOWN));
-                }
+            int i = getColDefinitionMap().values()
+                    .stream().mapToInt(FirestoreColDefinition::getIndex)
+                    .max()
+                    .orElse(-1);
+
+            for (String key : keys) {
+                if (!getColDefinitionMap().containsKey(key))
+                    getColDefinitionMap().put(key, new FirestoreColDefinition(++i, key, FirestoreColType.UNKNOWN));
             }
         }
         FJLogger.debug("Retrieved " + size + " rows in result set");
@@ -60,6 +64,9 @@ public class FirestoreJDBCResultSet implements ResultSet {
     }
 
     private QuerySnapshotWrapper getDocumentPointer() {
+        if (index < 0 || index >= queryDocumentSnapshots.size()) {
+            throw new FirestoreJDBCException("Index out of bounds. Must call next() responsibly");
+        }
         return queryDocumentSnapshots.get(index);
     }
 
@@ -467,8 +474,12 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
         printCurrentMethod();
-
-        return null;
+        if (this.getQueryResult() == null || this.getQueryResult().isEmpty()) {
+            throw new FirestoreJDBCException("Cannot get metadata if the query result is empty.");
+        }
+        QuerySnapshotWrapper sample = this.getQueryResult().get(0);
+        ResultSetMetaData metaData = new FirestoreResultSetMetaData(sample, getColDefinitionMap());
+        return metaData;
     }
 
 
@@ -476,7 +487,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Object getObject(int i) throws SQLException {
         printCurrentMethod();
 
-        return null;
+        return getDocumentPointer().get(getColNameFromIndex(i));
     }
 
 
@@ -484,7 +495,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public Object getObject(String s) throws SQLException {
         printCurrentMethod();
 
-        return null;
+        return getDocumentPointer().get(s);
     }
 
 
@@ -492,7 +503,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public int findColumn(String s) throws SQLException {
         printCurrentMethod();
 
-        return 0;
+        return getColDefinitionMap().get(s).getIndex();
     }
 
 
@@ -523,8 +534,11 @@ public class FirestoreJDBCResultSet implements ResultSet {
     @Override
     public BigDecimal getBigDecimal(String s) throws SQLException {
         printCurrentMethod();
+        if (getDocumentPointer().getString(s) == null) {
+            return null;
+        }
+        return new BigDecimal(getDocumentPointer().getString(s));
 
-        return null;
     }
 
 
@@ -548,7 +562,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public boolean isFirst() throws SQLException {
         printCurrentMethod();
 
-        return false;
+        return index == 0;
     }
 
 
@@ -556,7 +570,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
     public boolean isLast() throws SQLException {
         printCurrentMethod();
 
-        return false;
+        return index >= queryDocumentSnapshots.size() - 1;
     }
 
 
