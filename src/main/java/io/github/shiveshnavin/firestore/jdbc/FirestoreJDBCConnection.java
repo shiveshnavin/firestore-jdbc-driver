@@ -21,7 +21,7 @@ public class FirestoreJDBCConnection implements Connection {
                 FJLogger.warn("spring.datasource.url not in correct format. Expected -> jdbc:firestore:file:"+serviceAccountFilePath);
                 FJLogger.warn("Will anyway try to read from given path.");
             }
-            serviceAccountFilePath = serviceAccountFilePath.replace("jdbc:firebase:file:","");
+            serviceAccountFilePath = serviceAccountFilePath.replace("jdbc:firestore:file:","");
         }
         this.serviceAccountFilePath = serviceAccountFilePath;
         FirestoreHelper connManager = new FirestoreHelper(serviceAccountFilePath);
