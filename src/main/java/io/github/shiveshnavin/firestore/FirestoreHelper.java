@@ -33,6 +33,7 @@ public class FirestoreHelper {
 
     public FirestoreHelper(String path) {
         try {
+            path = path.replace("jdbc:firestore:file:","");
             File f = new File(path);
             InputStream resourceAsStream;
             if (f.exists()) {
