@@ -11,7 +11,7 @@ public class TestHelper {
     public static FirestoreJDBCConnection getConnection() throws RuntimeException{
         try {
             DriverManager.registerDriver(new FirestoreJDBCDriver());
-            String serviceAccountJsonPath = FirestoreHelper.class.getClassLoader().getResource("keys/test-a0930.json").getFile();
+            String serviceAccountJsonPath = "D:\\code\\node_projects\\xpasteit\\creds.json";
             FirestoreJDBCConnection con= (FirestoreJDBCConnection) DriverManager.getConnection(serviceAccountJsonPath);
             return con;
         } catch (Exception e) {
