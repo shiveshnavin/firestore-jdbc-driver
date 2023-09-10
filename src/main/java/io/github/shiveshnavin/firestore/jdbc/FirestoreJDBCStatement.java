@@ -21,6 +21,7 @@ import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.update.Update;
+import net.sf.jsqlparser.statement.update.UpdateSet;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 
 import java.io.*;
@@ -136,6 +137,14 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 public void visit(SelectExpressionItem item) {
                     Expression expr = item.getExpression();
                     Alias alias = item.getAlias();
+                    if(alias == null){
+                        if(item.getExpression() instanceof Column){
+                            String colName = ((Column)item.getExpression()).getColumnName();
+                            alias = new Alias(colName);
+                        }else{
+                            alias = new Alias(item.toString());
+                        }
+                    }
 
                     if (item.getExpression() instanceof Function) {
                         String funcName = ((Function) item.getExpression()).getName();
@@ -656,11 +665,12 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     private int performUpdateQuery() throws FirestoreJDBCException {
         Update update = (Update) parsedQuery;
-        List<Column> cols = update.getColumns();
-        List<Expression> values = update.getExpressions();
+        ArrayList<UpdateSet> updateSets = update.getUpdateSets();
         Map<String, Object> data = new HashMap<>();
-        for (int i = 0; i < values.size(); i++) {
-            Expression exp = values.get(i);
+        for (int i = 0; i < updateSets.size(); i++) {
+            UpdateSet updateSet = updateSets.get(i);
+            Column col = updateSet.getColumns().get(0);
+            Object exp = updateSet.getExpressions().get(0);
             Object value = "";
             if (exp instanceof Column) {
                 value = ((Column) exp).getColumnName();
@@ -673,7 +683,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             } else if (exp instanceof net.sf.jsqlparser.expression.LongValue) {
                 value = ((LongValue) exp).getValue();
             }
-            data.put(cols.get(i).getColumnName(), value);
+            data.put(col.getColumnName(), value);
 
         }
 

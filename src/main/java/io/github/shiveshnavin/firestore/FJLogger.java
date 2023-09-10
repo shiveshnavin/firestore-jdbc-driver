@@ -20,4 +20,8 @@ public class FJLogger {
         if (isLoggingEnabled)
             Logger.getLogger("FirestoreJDBC").log(new LogRecord(Level.INFO, "FJLogger : " + message.toString()));
     }
+
+    public static void warn(String message) {
+        Logger.getLogger("FirestoreJDBC").log(new LogRecord(Level.WARNING, "FJLogger : " + message.toString()));
+    }
 }
