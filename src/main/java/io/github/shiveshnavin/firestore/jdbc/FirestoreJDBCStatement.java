@@ -46,7 +46,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     private FirestoreJDBCResultSet firestoreJDBCResultSet;
     private String originalQuery;
     private String query;
-    private Map<Integer, Integer> paramPositionMap = new HashMap<>();
+    private Map<Integer, Integer> paramPositionMap = new LinkedHashMap<>();
 
 
     private Map<String, FirestoreColDefinition> aliasToColumnMap;
@@ -115,7 +115,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
     private void parseSelect() {
         Select stmt = (Select) parsedQuery;
-        aliasToColumnMap = new HashMap<>();
+        aliasToColumnMap = new LinkedHashMap<>();
         Limit limits = (((PlainSelect) ((Select) parsedQuery).getSelectBody()).getLimit());
         if (limits != null) {
             if (limits.getRowCount() instanceof LongValue) {
@@ -262,7 +262,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             QuerySnapshot querySnapshot = queryFuture.get();
             firestoreJDBCResultSet = new FirestoreJDBCResultSet(aliasToColumnMap);
             if (isCountQuery) {
-                HashMap<String, Object> data = new HashMap<>();
+                HashMap<String, Object> data = new LinkedHashMap<>();
                 data.put("id", "count");
                 aliasToColumnMap.keySet().forEach(key -> {
                     data.put(key, querySnapshot.size());
@@ -287,7 +287,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             return performSelectQuery();
         } else {
             int rowCount = executeWOResult(sql);
-            HashMap<String, Object> data = new HashMap<>();
+            HashMap<String, Object> data = new LinkedHashMap<>();
             data.put("rows", rowCount);
             firestoreJDBCResultSet = new FirestoreJDBCResultSet(aliasToColumnMap);
             firestoreJDBCResultSet.setQueryResult(List.of(new QuerySnapshotWrapper(null, data)));
@@ -629,7 +629,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         Insert insert = (Insert) parsedQuery;
         List<Column> cols = insert.getColumns();
         List<Expression> values = ((ExpressionList) insert.getItemsList()).getExpressions();
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
         for (int i = 0; i < values.size(); i++) {
             Expression exp = values.get(i);
             Object value = "";
@@ -666,7 +666,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     private int performUpdateQuery() throws FirestoreJDBCException {
         Update update = (Update) parsedQuery;
         ArrayList<UpdateSet> updateSets = update.getUpdateSets();
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new LinkedHashMap<>();
         for (int i = 0; i < updateSets.size(); i++) {
             UpdateSet updateSet = updateSets.get(i);
             Column col = updateSet.getColumns().get(0);
