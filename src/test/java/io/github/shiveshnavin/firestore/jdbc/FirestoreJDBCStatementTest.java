@@ -22,9 +22,9 @@ class FirestoreJDBCStatementTest {
     @Test
     void executeQuery_1() throws Exception {
 
-        String sql = "UPDATE clips set text = 'zlipaaa', filename = 'blehsas.txt' where timeStamp = 1638040289511 and text = 'zlip'";
+        String sql = "UPDATE clips set text = NULL, filename = 'blehsas.txt' where timeStamp = 1638040289511 and text = 'zlip'";
         FirestoreJDBCStatement statement = new FirestoreJDBCStatement(conn.getFirestore());
-        sql = "SELECT id from clips where timeStamp = 1638040289511  ;";
+//        sql = "SELECT id from clips where timeStamp = 1638040289511  ;";
         statement.setQuery(sql);
         ResultSet resultSet = statement.executeQuery();
         resultSet.next();

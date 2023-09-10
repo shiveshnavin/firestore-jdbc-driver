@@ -682,6 +682,8 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 value = ((DateValue) exp).getValue();
             } else if (exp instanceof net.sf.jsqlparser.expression.LongValue) {
                 value = ((LongValue) exp).getValue();
+            } else if (exp instanceof net.sf.jsqlparser.expression.NullValue) {
+                value = FieldValue.delete();
             }
             data.put(col.getColumnName(), value);
 
