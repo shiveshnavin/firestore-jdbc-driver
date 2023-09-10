@@ -119,7 +119,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
         Limit limits = (((PlainSelect) ((Select) parsedQuery).getSelectBody()).getLimit());
         if (limits != null) {
             if (limits.getRowCount() instanceof LongValue) {
-                limit = ((LongValue) limits.getOffset()).getValue();
+                limit = ((LongValue) limits.getRowCount()).getValue();
             }
             if (limits.getOffset() instanceof LongValue) {
                 offset = ((LongValue) limits.getOffset()).getValue();
