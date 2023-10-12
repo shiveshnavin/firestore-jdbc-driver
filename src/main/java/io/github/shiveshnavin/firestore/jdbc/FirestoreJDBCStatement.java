@@ -159,9 +159,8 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             String funcName = func.getName();
             if (funcName.equals("count")) {
                 isCountQuery = true;
-            } else if (funcName.equals("concat")) {
-                ExpressionList expressionList = func.getParameters();
-                expressionList.getExpressions().forEach(e -> parseExpression(e, alias, integer));
+            } else if (FirestoreColDefinition.isSupportedExpression(expr)) {
+                //supported
             } else {
                 throw new FirestoreJDBCException("Function " + funcName + " not supported");
             }
@@ -266,7 +265,12 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             }
         }
         if (!aliasToColumnMap.isEmpty()) {
-            List<String> projection = aliasToColumnMap.values().stream().map(mp -> mp.getColumnName()).collect(Collectors.toList());
+            Set<String> projection = aliasToColumnMap
+                    .values().stream().map(FirestoreColDefinition::getColumnName)
+                    .collect(Collectors.toSet());
+            aliasToColumnMap.values().forEach(cold -> {
+                projection.addAll(FirestoreColDefinition.getReferencedColsFromExpressions(cold.getExpression()));
+            });
             query = query.select(projection.toArray(new String[0]));
         }
         ApiFuture<QuerySnapshot> queryFuture = query.get();
