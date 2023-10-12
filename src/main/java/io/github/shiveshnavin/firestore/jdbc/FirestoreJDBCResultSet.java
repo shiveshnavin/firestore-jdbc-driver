@@ -278,7 +278,7 @@ public class FirestoreJDBCResultSet implements ResultSet {
         }
         return getColDefinitionMap().entrySet().stream().
                 filter(e -> e.getValue().getIndex() == idx).
-                findAny().get().getValue().getColumnName();
+                findAny().get().getKey();
     }
 
 

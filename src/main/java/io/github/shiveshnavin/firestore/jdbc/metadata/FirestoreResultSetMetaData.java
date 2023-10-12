@@ -34,7 +34,7 @@ public class FirestoreResultSetMetaData implements ResultSetMetaData {
         }
         return getColDefinitionMap().entrySet().stream().
                 filter(e -> e.getValue().getIndex() == idx).
-                findAny().get().getValue().getColumnName();
+                findAny().get().getKey();
     }
 
     @Override
