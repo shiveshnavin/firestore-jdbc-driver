@@ -6,14 +6,12 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
-import net.sf.jsqlparser.expression.Expression;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class QuerySnapshotWrapper {
 
@@ -35,21 +33,29 @@ public class QuerySnapshotWrapper {
             return data;
         }
 
-        Map<String, Object> processProcessedData = new HashMap<>();
+        Map<String, Object> postProcessedData = new HashMap<>();
         data.forEach((key, value) -> {
             Map.Entry<String, FirestoreColDefinition> definitionEntry = FirestoreColDefinition.getColDefinitionByAliasOrName(key, this.aliasToColumnMap);
             if (definitionEntry == null || definitionEntry.getValue() == null) {
-                processProcessedData.put(key, value);
+                postProcessedData.put(key, value);
             } else if (definitionEntry.getValue().getExpression() == null) {
-                processProcessedData.put(key, value);
-            }else{
+                postProcessedData.put(definitionEntry.getKey(), value);
+            } else {
                 FirestoreColDefinition firestoreColDefinition = definitionEntry.getValue();
-                value = firestoreColDefinition.executeExpression(value);
-                processProcessedData.put(key, value);
+                value = firestoreColDefinition.executeExpression(value, data);
+                postProcessedData.put(definitionEntry.getKey(), value);
             }
         });
 
-        return processProcessedData;
+        aliasToColumnMap.forEach((alias, cold) -> {
+            if (!postProcessedData.containsKey(alias)) {
+                if (cold.getExpression() != null) {
+                    postProcessedData.put(alias, cold.executeExpression(data.get(alias), data));
+                }
+            }
+        });
+
+        return postProcessedData;
     }
 
     public QueryDocumentSnapshot getSnapshot() {
@@ -57,7 +63,12 @@ public class QuerySnapshotWrapper {
     }
 
     public Map<String, Object> getData() {
-        return postProcessExpressions(data);
+        try {
+            return postProcessExpressions(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return data;
+        }
     }
 
     @Nonnull
@@ -235,8 +246,12 @@ public class QuerySnapshotWrapper {
     private <T> T wrapWithExpression(String field, T v) {
         Map.Entry<String, FirestoreColDefinition> definitionEntry =
                 FirestoreColDefinition.getColDefinitionByAliasOrName(field, this.aliasToColumnMap);
-        if(definitionEntry != null){
-            return definitionEntry.getValue().executeExpression(v);
+        try {
+            if (definitionEntry != null) {
+                return (T) definitionEntry.getValue().executeExpression(v, data);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return v;
     }
