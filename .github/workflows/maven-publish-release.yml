@@ -27,8 +27,8 @@ jobs:
     - name: Find and Replace
       uses: jacobtomlinson/gha-find-replace@v3
       with:
-        find: "-SNAPSHOT"
-        replace: ""
+        find: "-SNAPSHOT<"
+        replace: "<"
         include: "pom.xml"
         regex: false
     - name: Release Maven package
