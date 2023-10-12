@@ -80,7 +80,7 @@ public class User{
 Apart from normal CRUD the following operations are also supported. Please note that these are READ intensive operations
 and must be used cautiously.
 ```sql
-INSERT INTO mytable SELECT name as id, marks as science WHERE subject = 'science'
+INSERT INTO mytable SELECT name as id, marks as science FROM omytable WHERE subject = 'science'
 ```
 
 ```sql
