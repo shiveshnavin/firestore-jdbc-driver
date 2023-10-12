@@ -34,7 +34,6 @@ import java.sql.Blob;
 import java.sql.Date;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 
@@ -132,12 +131,11 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
 
         orderByElements = (((PlainSelect) ((Select) parsedQuery).getSelectBody()).getOrderByElements());
 
-        AtomicInteger integer = new AtomicInteger(0);
+        AtomicInteger colIdx = new AtomicInteger(0);
         for (SelectItem selectItem : ((PlainSelect) stmt.getSelectBody()).getSelectItems()) {
             selectItem.accept(new SelectItemVisitorAdapter() {
                 @Override
                 public void visit(SelectExpressionItem item) {
-                    Expression expr = item.getExpression();
                     Alias alias = item.getAlias();
                     if (alias == null) {
                         if (item.getExpression() instanceof Column) {
@@ -147,20 +145,29 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                             alias = new Alias(item.toString());
                         }
                     }
-
-                    if (item.getExpression() instanceof Function) {
-                        String funcName = ((Function) item.getExpression()).getName();
-                        if (funcName.equals("count")) {
-                            isCountQuery = true;
-                        } else {
-                            throw new FirestoreJDBCException("Function " + funcName + " not supported");
-                        }
-                    }
-                    aliasToColumnMap.put(alias.getName(), new FirestoreColDefinition(integer.getAndAdd(1), expr.toString(), FirestoreColType.STRING));
+                    parseExpression(item.getExpression(), alias, colIdx);
                 }
             });
         }
 
+    }
+
+    private void parseExpression(Expression expr, Alias alias, AtomicInteger integer) {
+        FirestoreColDefinition firestoreColDefinition = new FirestoreColDefinition(integer.getAndAdd(1), expr.toString(), FirestoreColType.STRING);
+        if (expr instanceof Function) {
+            Function func = (Function) expr;
+            String funcName = func.getName();
+            if (funcName.equals("count")) {
+                isCountQuery = true;
+            } else if (funcName.equals("concat")) {
+                ExpressionList expressionList = func.getParameters();
+                expressionList.getExpressions().forEach(e -> parseExpression(e, alias, integer));
+            } else {
+                throw new FirestoreJDBCException("Function " + funcName + " not supported");
+            }
+        }
+        firestoreColDefinition.setExpression(expr);
+        aliasToColumnMap.put(alias.getName(), firestoreColDefinition);
     }
 
     /**
@@ -272,10 +279,10 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 aliasToColumnMap.keySet().forEach(key -> {
                     data.put(key, querySnapshot.size());
                 });
-                firestoreJDBCResultSet.setQueryResult(List.of(new QuerySnapshotWrapper(null, data)));
+                firestoreJDBCResultSet.setQueryResult(List.of(new QuerySnapshotWrapper(null, data, aliasToColumnMap)));
             } else {
                 firestoreJDBCResultSet.setQueryResult(querySnapshot.getDocuments().stream()
-                        .map(doc -> new QuerySnapshotWrapper(doc, doc.getData())).collect(Collectors.toList()));
+                        .map(doc -> new QuerySnapshotWrapper(doc, doc.getData(), aliasToColumnMap)).collect(Collectors.toList()));
             }
             return firestoreJDBCResultSet;
         } catch (Exception e) {
@@ -295,7 +302,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             HashMap<String, Object> data = new LinkedHashMap<>();
             data.put("rows", rowCount);
             firestoreJDBCResultSet = new FirestoreJDBCResultSet(aliasToColumnMap);
-            firestoreJDBCResultSet.setQueryResult(List.of(new QuerySnapshotWrapper(null, data)));
+            firestoreJDBCResultSet.setQueryResult(List.of(new QuerySnapshotWrapper(null, data, aliasToColumnMap)));
             return firestoreJDBCResultSet;
         }
     }
@@ -643,7 +650,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                     List<QuerySnapshotWrapper> queryResult = resultSet.getQueryResult();
                     for (QuerySnapshotWrapper qr : queryResult) {
                         Object id = qr.get("id");
-                        if(inner.aliasToColumnMap.containsKey("id")){
+                        if (inner.aliasToColumnMap.containsKey("id")) {
                             String idAlias = inner.aliasToColumnMap.get("id").getColumnName();
                             id = qr.get(idAlias);
                         }
