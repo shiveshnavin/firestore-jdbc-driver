@@ -51,8 +51,11 @@ public class FirestoreJDBCResultSet implements ResultSet {
                     .orElse(-1);
 
             for (String key : keys) {
-                if (!getColDefinitionMap().containsKey(key))
+                if (!getColDefinitionMap().containsKey(key)
+                && getColDefinitionMap().values()
+                        .stream().noneMatch(col-> col.getColumnName().equals(key))) {
                     getColDefinitionMap().put(key, new FirestoreColDefinition(++i, key, FirestoreColType.UNKNOWN));
+                }
             }
         }
         FJLogger.debug("Retrieved " + size + " rows in result set");

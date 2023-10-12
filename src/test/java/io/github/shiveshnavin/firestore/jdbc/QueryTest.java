@@ -1,5 +1,6 @@
-//package io.shiveshnavin.firestore.jdbc;
+//package io.github.shiveshnavin.firestore.jdbc;
 //
+//import io.github.shiveshnavin.firestore.FirestoreHelper;
 //import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 //import io.github.shiveshnavin.firestore.jdbc.TestHelper;
 //import org.junit.jupiter.api.Assertions;
@@ -9,7 +10,7 @@
 //
 //import java.sql.*;
 //
-//@Disabled
+////@Disabled
 //public class QueryTest {
 //
 //    static Connection connection;
@@ -23,7 +24,63 @@
 //        }
 //    }
 //
+//
+//    @Disabled
 //    @Test
+//    public void testProjectionSelect() throws Exception {
+//        if(connection == null)
+//            return;
+//        String sql = "INSERT INTO sample2 (id,name,marks) values (?,?,?)";
+//        PreparedStatement statement = connection.prepareStatement(sql);
+//        statement.setInt(1,1234234);
+//        statement.setString(2, "Hello");
+//        statement.setInt(3, 10);
+//        statement.executeUpdate();
+//
+//
+//        statement = connection.prepareStatement("SELECT name, id as mid FROM sample2");
+//        statement.executeQuery();
+//        ResultSet resultSet = statement.getResultSet();
+//        int size = resultSet.getFetchSize();
+//        assert size > 0;
+//    }
+//
+//
+//    @Test
+//    public void testInsertIntoSelect() throws Exception {
+//        if(connection == null)
+//            return;
+//        connection.prepareStatement("DELETE FROM sample").executeUpdate();
+//        connection.prepareStatement("DELETE FROM sample2").executeUpdate();
+//        String sql = "INSERT INTO sample (id,name,marks) values (?,?,?)";
+//        PreparedStatement statement = connection.prepareStatement(sql);
+//        statement.setInt(1,1234234);
+//        statement.setString(2, "Hello");
+//        statement.setInt(3, 10);
+//        statement.executeUpdate();
+//        statement = connection.prepareStatement(sql);
+//        statement.setInt(1,1234235);
+//        statement.setString(2, "Hello2");
+//        statement.setInt(3, 11);
+//        statement.executeUpdate();
+//
+//        sql = "INSERT INTO sample2" +
+//                " SELECT name as name2, marks as id, marks as marks FROM sample" +
+//                " WHERE marks > 10;";
+//
+//        FirestoreHelper.setEnableAutoGenIds(true);
+//        statement = connection.prepareStatement(sql);
+//        statement.executeQuery();
+//        statement = connection.prepareStatement("SELECT id as mid, name2 as name3 FROM sample2");
+//        statement.executeQuery();
+//        ResultSet resultSet = statement.getResultSet();
+//        int size = resultSet.getFetchSize();
+//        assert size > 0;
+//    }
+//
+//
+//    @Test
+//    @Disabled
 //    public void testNullInsert() throws Exception{
 //        if(connection == null)
 //            return;
