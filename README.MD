@@ -77,7 +77,8 @@ public class User{
 ```
 
 ## Additional Supported operations
-Apart from normal CRUD the following operations are also supported. Please note that these are READ intensive operations
+Apart from normal CRUD the following operations are also supported. Please note that some of 
+these are READ intensive operations
 and must be used cautiously.
 ```sql
 INSERT INTO mytable SELECT name as id, marks as science FROM omytable WHERE subject = 'science'
@@ -89,6 +90,10 @@ SELECT count(*) FROM mytable WHERE marks > 90
 
 ```sql
 DROP TABLE mytable
+```
+
+```sql
+SELECT concat('marks_',id) as mid, marks + 100 as marks_plus_100 FROM mytable
 ```
 
 ## Issues
