@@ -244,9 +244,9 @@ public class QuerySnapshotWrapper {
     }
 
     private <T> T wrapWithExpression(String field, T v) {
-        Map.Entry<String, FirestoreColDefinition> definitionEntry =
-                FirestoreColDefinition.getColDefinitionByAliasOrName(field, this.aliasToColumnMap);
         try {
+            Map.Entry<String, FirestoreColDefinition> definitionEntry =
+                    FirestoreColDefinition.getColDefinitionByAliasOrName(field, this.aliasToColumnMap);
             if (definitionEntry != null) {
                 return (T) definitionEntry.getValue().executeExpression(v, data);
             }

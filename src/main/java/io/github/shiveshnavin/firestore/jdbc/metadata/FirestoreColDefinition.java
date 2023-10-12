@@ -160,6 +160,8 @@ public class FirestoreColDefinition {
     }
 
     public static Map.Entry<String, FirestoreColDefinition> getColDefinitionByAliasOrName(String name, Map<String, FirestoreColDefinition> aliasToColumnMap) {
+        if(aliasToColumnMap == null)
+            return null;
         Map.Entry<String, FirestoreColDefinition> colDefinitionByName = getColDefinitionByName(name, aliasToColumnMap);
         if (colDefinitionByName != null)
             return colDefinitionByName;
