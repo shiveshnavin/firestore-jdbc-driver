@@ -18,7 +18,7 @@ Release
 <dependency>
    <groupId>io.github.shiveshnavin</groupId>
    <artifactId>firestore-jdbc</artifactId>
-   <version>1.3.5</version>
+   <version>1.3.6</version>
 </dependency>
 ```
 Snapshot (Experimental)
@@ -26,7 +26,7 @@ Snapshot (Experimental)
 <dependency>
    <groupId>io.github.shiveshnavin</groupId>
    <artifactId>firestore-jdbc</artifactId>
-   <version>1.3.2-SNAPSHOT</version>
+   <version>1.3.6-SNAPSHOT</version>
 </dependency>
 ```
 ## Usage
