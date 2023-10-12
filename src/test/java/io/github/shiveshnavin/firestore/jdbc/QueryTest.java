@@ -46,7 +46,9 @@
 //    }
 //
 //
+//
 //    @Test
+//    @Disabled
 //    public void testInsertIntoSelect() throws Exception {
 //        if(connection == null)
 //            return;

@@ -76,6 +76,20 @@ public class User{
 }
 ```
 
+## Additional Supported operations
+Apart from normal CRUD the following operations are also supported. Please note that these are READ intensive operations
+and must be used cautiously.
+```sql
+INSERT INTO mytable SELECT name as id, marks as science WHERE subject = 'science'
+```
+
+```sql
+SELECT count(*) FROM mytable WHERE marks > 90
+```
+
+```sql
+DROP TABLE mytable
+```
 
 ## Issues
 #### SIGTERM while initializing JPA when using openjdk11
