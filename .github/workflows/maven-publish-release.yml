@@ -24,7 +24,13 @@ jobs:
         java-version: 11
         cache: 'maven'
         server-id: ossrh
-
+    - name: Find and Replace
+      uses: jacobtomlinson/gha-find-replace@v3
+      with:
+        find: "-SNAPSHOT"
+        replace: ""
+        include: "pom.xml"
+        regex: false
     - name: Release Maven package
       uses: samuelmeuli/action-maven-publish@v1
       with:
