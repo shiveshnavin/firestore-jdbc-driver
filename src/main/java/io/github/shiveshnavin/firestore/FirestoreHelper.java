@@ -21,6 +21,14 @@ public class FirestoreHelper {
     private Firestore defaultDatabase;
     private Map<String, FirebaseApp> firebaseApps = new HashMap<>();
 
+    private static boolean IS_AUTO_GEN_IDS_ENABLED = false;
+    public static void setEnableAutoGenIds(boolean enabled){
+        IS_AUTO_GEN_IDS_ENABLED = enabled;
+    }
+    public static boolean getEnableAutoGenIds(){
+        return IS_AUTO_GEN_IDS_ENABLED;
+    }
+
     public FirestoreHelper(InputStream resourceAsStream) {
         try {
             String serviceAccountJson = StringUtils.newStringUtf8(resourceAsStream.readAllBytes());

@@ -5,6 +5,7 @@ import com.google.cloud.firestore.*;
 import com.google.common.io.CharStreams;
 import com.google.gson.Gson;
 import io.github.shiveshnavin.firestore.FJLogger;
+import io.github.shiveshnavin.firestore.FirestoreHelper;
 import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
 import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColType;
@@ -33,6 +34,7 @@ import java.sql.Blob;
 import java.sql.Date;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 
@@ -137,11 +139,11 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 public void visit(SelectExpressionItem item) {
                     Expression expr = item.getExpression();
                     Alias alias = item.getAlias();
-                    if(alias == null){
-                        if(item.getExpression() instanceof Column){
-                            String colName = ((Column)item.getExpression()).getColumnName();
+                    if (alias == null) {
+                        if (item.getExpression() instanceof Column) {
+                            String colName = ((Column) item.getExpression()).getColumnName();
                             alias = new Alias(colName);
-                        }else{
+                        } else {
                             alias = new Alias(item.toString());
                         }
                     }
@@ -256,7 +258,10 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
                 }
             }
         }
-
+        if (!aliasToColumnMap.isEmpty()) {
+            List<String> projection = aliasToColumnMap.values().stream().map(mp -> mp.getColumnName()).collect(Collectors.toList());
+            query = query.select(projection.toArray(new String[0]));
+        }
         ApiFuture<QuerySnapshot> queryFuture = query.get();
         try {
             QuerySnapshot querySnapshot = queryFuture.get();
@@ -396,7 +401,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     public int getMaxRows() throws SQLException {
         FirestoreJDBCResultSet.printCurrentMethod();
 
-        return (int)limit;
+        return (int) limit;
     }
 
     @Override
@@ -628,6 +633,56 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     private int performInsertQuery() throws FirestoreJDBCException {
         Insert insert = (Insert) parsedQuery;
         List<Column> cols = insert.getColumns();
+        if (cols == null) {
+            Select select = insert.getSelect();
+            if (select != null) {
+                FirestoreJDBCStatement inner = new FirestoreJDBCStatement(this.db);
+                try {
+                    FirestoreJDBCResultSet resultSet = (FirestoreJDBCResultSet) inner.executeQuery(select.toString());
+                    WriteBatch batch = db.batch();
+                    List<QuerySnapshotWrapper> queryResult = resultSet.getQueryResult();
+                    for (QuerySnapshotWrapper qr : queryResult) {
+                        Object id = qr.get("id");
+                        if(inner.aliasToColumnMap.containsKey("id")){
+                            String idAlias = inner.aliasToColumnMap.get("id").getColumnName();
+                            id = qr.get(idAlias);
+                        }
+                        if (id == null) {
+                            if (FirestoreHelper.getEnableAutoGenIds())
+                                id = System.currentTimeMillis() + "" + ((int) (1 + 100 * Math.random()));
+                            else
+                                throw new FirestoreJDBCException("Must provide NON NULL `id` column in each of the inner SELECT result rows or call FirestoreHelper.setEnableAutoGenIds(true) . Got null id for : " + qr.getData());
+                        }
+                        Map<String, Object> data = qr.getData();
+                        Map<String, Object> writeData;
+                        if (!inner.aliasToColumnMap.isEmpty()) {
+                            writeData = new HashMap<>();
+                            inner.aliasToColumnMap.forEach((alias, firestoreColDefinition) -> {
+                                writeData.put(alias, qr.get(firestoreColDefinition.getColumnName()));
+                            });
+                        } else {
+                            writeData = data;
+                        }
+                        writeData.put("id", id);
+                        DocumentReference ref = db.collection(tableName).document(id.toString());
+                        batch.set(ref, writeData);
+
+                    }
+                    ApiFuture<List<WriteResult>> commit = batch.commit();
+                    try {
+                        commit.get();
+                    } catch (Exception e) {
+                        throw new FirestoreJDBCException(e);
+                    }
+                    return 1;
+
+                } catch (SQLException e) {
+                    throw new FirestoreJDBCException(e);
+                }
+            } else {
+                throw new FirestoreJDBCException("Must provide either values or inner select query.");
+            }
+        }
         List<Expression> values = ((ExpressionList) insert.getItemsList()).getExpressions();
         Map<String, Object> data = new LinkedHashMap<>();
         for (int i = 0; i < values.size(); i++) {
@@ -779,7 +834,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setNull(int i, int i1) throws SQLException {
         FirestoreJDBCResultSet.printCurrentMethod();
-        switch (i1){
+        switch (i1) {
             case Types.VARCHAR:
             case Types.CHAR:
             case Types.JAVA_OBJECT:
@@ -801,7 +856,6 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
             default:
                 insertParameter(query, paramPositionMap.get(i), "0");
         }
-
 
 
     }
