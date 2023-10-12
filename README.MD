@@ -18,7 +18,7 @@ Release
 <dependency>
    <groupId>io.github.shiveshnavin</groupId>
    <artifactId>firestore-jdbc</artifactId>
-   <version>1.3.2</version>
+   <version>1.3.5</version>
 </dependency>
 ```
 Snapshot (Experimental)
