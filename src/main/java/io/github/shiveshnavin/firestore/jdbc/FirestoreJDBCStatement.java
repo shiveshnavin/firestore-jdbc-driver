@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 public class FirestoreJDBCStatement implements java.sql.Statement, PreparedStatement {
 
     private Firestore db;
+    private static Gson gson = new Gson();
 
     private Statement parsedQuery;
     private QueryType queryType;
@@ -1008,7 +1009,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setObject(int i, Object o, int i1) throws SQLException {
         FirestoreJDBCResultSet.printCurrentMethod();
-        insertParameter(query, paramPositionMap.get(i), "" + new Gson().toJson(o));
+        insertParameter(query, paramPositionMap.get(i), "" + gson.toJson(o));
 
 
     }
@@ -1016,7 +1017,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public void setObject(int i, Object o) throws SQLException {
         FirestoreJDBCResultSet.printCurrentMethod();
-        insertParameter(query, paramPositionMap.get(i), "" + new Gson().toJson(o));
+        insertParameter(query, paramPositionMap.get(i), "" + gson.toJson(o));
 
 
     }

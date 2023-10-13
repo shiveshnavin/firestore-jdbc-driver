@@ -1,5 +1,6 @@
 package io.github.shiveshnavin.firestore.jdbc;
 
+import com.google.gson.Gson;
 import io.github.shiveshnavin.firestore.FJLogger;
 import io.github.shiveshnavin.firestore.exceptions.FirestoreJDBCException;
 import io.github.shiveshnavin.firestore.jdbc.metadata.FirestoreColDefinition;
@@ -19,6 +20,8 @@ public class FirestoreJDBCResultSet implements ResultSet {
 
     private int index = -1;
     private int size = 0;
+    private static Gson gson = new Gson();
+
     private List<QuerySnapshotWrapper> queryDocumentSnapshots;
     private final Map<String, FirestoreColDefinition> colDefinitionMap;
 
@@ -52,8 +55,8 @@ public class FirestoreJDBCResultSet implements ResultSet {
 
             for (String key : keys) {
                 if (!getColDefinitionMap().containsKey(key)
-                && getColDefinitionMap().values()
-                        .stream().noneMatch(col-> col.getColumnName().equals(key))) {
+                        && getColDefinitionMap().values()
+                        .stream().noneMatch(col -> col.getColumnName().equals(key))) {
                     getColDefinitionMap().put(key, new FirestoreColDefinition(++i, key, FirestoreColType.UNKNOWN));
                 }
             }
@@ -133,13 +136,17 @@ public class FirestoreJDBCResultSet implements ResultSet {
         printCurrentMethod();
         FirestoreColDefinition col = getColDefinitionMap().get(s);
         String colname = FirestoreColDefinition.getColNameFromQualified(col.getColumnName());
-        String value;
+        Object value;
         if (getDocumentPointer().contains(colname)) {
-            value = getDocumentPointer().getString(colname);
+            value = getDocumentPointer().get(colname);
         } else {
-            value = getDocumentPointer().getString(s);
+            value = getDocumentPointer().get(s);
         }
-        return value;
+        if (value instanceof String)
+            return (String) value;
+        else if (value != null)
+            return gson.toJson(value);
+        return null;
     }
 
 
