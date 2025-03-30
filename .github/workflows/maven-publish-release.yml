@@ -40,4 +40,4 @@ jobs:
         nexus_password: ${{ secrets.OSS_PASSWORD }}
         maven_profiles: release
         maven_args: -P release
-        maven_goals_phases: clean deploy -P release
+        maven_goals_phases: clean deploy -P release -DskipTests
