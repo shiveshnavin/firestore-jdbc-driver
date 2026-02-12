@@ -12,6 +12,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    environment: maven_deploy 
     permissions:
       contents: read
       packages: write
