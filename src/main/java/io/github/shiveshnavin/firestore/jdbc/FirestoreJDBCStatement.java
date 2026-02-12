@@ -368,7 +368,7 @@ public class FirestoreJDBCStatement implements java.sql.Statement, PreparedState
     @Override
     public boolean execute(String s) throws SQLException {
         FirestoreJDBCResultSet.printCurrentMethod();
-        this.query = s;
+        setQuery(s);
         return executeWOResult(query) > 0;
     }
 
