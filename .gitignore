@@ -9,8 +9,9 @@
 .settings
 .springBeans
 .sts4-cache
-
-
+settings-secret.xml
+gpg-key.txt
+publish.ps
 ### Eclipse ###
 
 .metadata
